@@ -9,7 +9,7 @@
 import UIKit
 
 /// 日志输出
-func DZMLog<T>(_ message:T) {
+func DZMLog<T>(_ message: T) {
     
     #if DEBUG
     
@@ -21,72 +21,72 @@ func DZMLog<T>(_ message:T) {
 // MARK: -- 屏幕属性
 
 /// 屏幕Size
-let ScreenSize:CGSize = UIScreen.main.bounds.size
+let ScreenSize: CGSize = UIScreen.main.bounds.size
 
 /// 屏幕宽度
-let ScreenWidth:CGFloat = UIScreen.main.bounds.size.width
+let ScreenWidth: CGFloat = UIScreen.main.bounds.size.width
 
 /// 屏幕高度
-let ScreenHeight:CGFloat = UIScreen.main.bounds.size.height
+let ScreenHeight: CGFloat = UIScreen.main.bounds.size.height
 
 /// TabBar高度
-let TabBarHeight:CGFloat = (IsX ? 83 : 49)
+let TabBarHeight: CGFloat = (IsX ? 83 : 49)
 
 /// StatusBar高度 (IsX ? 44 : 20)
-let StatusBarHeight:CGFloat = (IsX ? 44 : 20)
+let StatusBarHeight: CGFloat = (IsX ? 44 : 20)
 
 /// 导航栏高度
-let NavgationBarHeight:CGFloat = (StatusBarHeight + 44)
+let NavgationBarHeight: CGFloat = (StatusBarHeight + 44)
 
 
 // MARK: -- 判断系统设备
 
 /// 是4
-let Is4:Bool = (ScreenHeight == CGFloat(480) && ScreenWidth == CGFloat(320))
+let Is4: Bool = (ScreenHeight == CGFloat(480) && ScreenWidth == CGFloat(320))
 
 /// 是5
-let Is5:Bool = (ScreenHeight == CGFloat(568) && ScreenWidth == CGFloat(320))
+let Is5: Bool = (ScreenHeight == CGFloat(568) && ScreenWidth == CGFloat(320))
 
 /// 是678
-let Is678:Bool = (ScreenHeight == CGFloat(667) && ScreenWidth == CGFloat(375))
+let Is678: Bool = (ScreenHeight == CGFloat(667) && ScreenWidth == CGFloat(375))
 
 /// 是678P
-let Is678P:Bool = (ScreenHeight == CGFloat(736) && ScreenWidth == CGFloat(414))
+let Is678P: Bool = (ScreenHeight == CGFloat(736) && ScreenWidth == CGFloat(414))
 
 /// 是X系列
-let IsX:Bool = (IsX_XS || IsXR_XSMAX)
+let IsX: Bool = (IsX_XS || IsXR_XSMAX)
 
 /// 是X XS
-let IsX_XS:Bool = (ScreenHeight == CGFloat(812) && ScreenWidth == CGFloat(375))
+let IsX_XS: Bool = (ScreenHeight == CGFloat(812) && ScreenWidth == CGFloat(375))
 
 /// 是XR XSMAX
-let IsXR_XSMAX:Bool = (ScreenHeight == CGFloat(896) && ScreenWidth == CGFloat(414))
+let IsXR_XSMAX: Bool = (ScreenHeight == CGFloat(896) && ScreenWidth == CGFloat(414))
 
 
 // MARK: -- 屏幕适配
 
 /// 以iPhone6为比例
-func SA_SIZE(_ size:CGFloat) ->CGFloat {
+func SA_SIZE(_ size: CGFloat) -> CGFloat {
     
     return size * (ScreenWidth / 375)
 }
 
-func SA(is45:CGFloat, _ other:CGFloat) ->CGFloat {
+func SA(is45: CGFloat, _ other: CGFloat) -> CGFloat {
     
     return SA(is45, other, other, other, other)
 }
 
-func SA(isX:CGFloat, _ other:CGFloat) ->CGFloat {
+func SA(isX: CGFloat, _ other: CGFloat) -> CGFloat {
     
     return SA(isX_XS: isX, isX, other)
 }
 
-func SA(is45:CGFloat, _ isX_XS:CGFloat, _ isXR_XSMAX:CGFloat,  _ other:CGFloat) ->CGFloat {
+func SA(is45: CGFloat, _ isX_XS: CGFloat, _ isXR_XSMAX: CGFloat,  _ other: CGFloat) -> CGFloat {
     
     return SA(is45, other, other, isX_XS, isXR_XSMAX)
 }
 
-func SA(isX_XS:CGFloat, _ isXR_XSMAX:CGFloat, _ other:CGFloat) ->CGFloat {
+func SA(isX_XS: CGFloat, _ isXR_XSMAX: CGFloat, _ other: CGFloat) -> CGFloat {
     
     return SA(other, other, other, isX_XS, isXR_XSMAX)
 }
@@ -345,34 +345,26 @@ func DZM_READ_TOTAL_PROGRESS_STRING(progress:Float) ->String {
 }
 
 /// 计算总进度
-func DZM_READ_TOTAL_PROGRESS(readModel:ReadModel!,recordModel:ReadRecordModel!) ->Float {
-    
+func DZM_READ_TOTAL_PROGRESS(readModel: ReadModel, recordModel: ReadRecordModel) -> Float {
     // 当前阅读进度
-    var progress:Float = 0.0
-    
-    // 临时检查
-    if readModel == nil || recordModel == nil { return progress }
+    var progress: Float = 0.0
     
     if recordModel.isLastChapter && recordModel.isLastPage { // 最后一章最后一页
-        
         // 获得当前阅读进度
         progress = 1.0
-        
-    }else{
-        
+    } else {
         // 当前章节在所有章节列表中的位置
-        let chapterIndex:Float = recordModel.chapterModel.id.floatValue
+        let chapterIndex: Float = Float(recordModel.chapterModel.id)
         
         // 章节总数量
-        let chapterCount:Float = Float(truncating: readModel.chapterCount)
+        let chapterCount: Float = Float(readModel.chapterCount)
         
         // 阅读记录首位置
-        let locationFirst:Float = recordModel.locationFirst.floatValue
+        let locationFirst: Float = Float(recordModel.locationFirst)
         
         // 阅读记录内容长度
-        let fullContentLength:Float = Float(recordModel.chapterModel.fullContent.length)
+        let fullContentLength: Float = Float(recordModel.chapterModel.fullContent.length)
         
-        // print("章节下标: \(chapterIndex)  章节总数量: \(chapterCount)  locationFirst: \(locationFirst)  fullContentLength: \(fullContentLength)")
         // 获得当前阅读进度
         progress = (chapterIndex / chapterCount + locationFirst / fullContentLength / chapterCount)
     }

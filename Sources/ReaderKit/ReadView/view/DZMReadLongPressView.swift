@@ -530,7 +530,7 @@ class ReadLongPressView: ReadView {
             
             DispatchQueue.global().async {
                 
-                UIPasteboard.general.string = tempContent?.string.substring(temSelectRange)
+                UIPasteboard.general.string = tempContent.string.substring(temSelectRange)
             }
             
             // 重置页面数据

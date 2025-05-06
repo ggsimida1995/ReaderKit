@@ -126,13 +126,9 @@ class ReadViewController: ViewController {
     
     /// 刷新阅读进度显示
     private func reloadProgress() {
-        // if ReaderLayoutManager.shared.progressType == .total { // 总进度
-        //     let progress: Float = _READ_TOTAL_PROGRESS(readModel: readModel, recordModel: recordModel)
-        //     bottomView.progressLabel.text = _READ_TOTAL_PROGRESS_STRING(progress: progress)
-        // } else { // 分页进度
         let progress: Float = DZM_READ_TOTAL_PROGRESS(readModel: readModel, recordModel: recordModel)
         
-        bottomView.pageLabel.text = "\(recordModel.page.intValue + 1)/\(recordModel.chapterModel!.pageCount.intValue)"
+        bottomView.pageLabel.text = "\(recordModel.page + 1)/\(recordModel.chapterModel!.pageCount)"
         bottomView.chapterLabel.text = recordModel.chapterModel.name
         bottomView.bookNameLabel.text = readModel.bookName
         bottomView.progressLabel.text = DZM_READ_TOTAL_PROGRESS_STRING(progress: progress)
@@ -140,9 +136,7 @@ class ReadViewController: ViewController {
         topView.chapterLabel.text = recordModel.chapterModel.name
         topView.bookNameLabel.text = readModel.bookName
         topView.progressLabel.text = DZM_READ_TOTAL_PROGRESS_STRING(progress: progress)
-        topView.pageLabel.text = "\(recordModel.page.intValue + 1)/\(recordModel.chapterModel!.pageCount.intValue)"
-        
-        // }
+        topView.pageLabel.text = "\(recordModel.page + 1)/\(recordModel.chapterModel!.pageCount)"
     }
     
     deinit {

@@ -94,10 +94,9 @@ class ReadTextParser: NSObject {
     ///   - bookID: 小说ID
     ///   - content: 小说内容
     /// - Returns: 章节列表
-    private class func parser(bookID:String!, content:String!) ->[ReadChapterListModel] {
-        
+    private class func parser(bookID: String, content: String) -> [ReadChapterListModel] {
         // 章节列表
-        var chapterListModels:[ReadChapterListModel] = []
+        var chapterListModels: [ReadChapterListModel] = []
         
         // 正则
         let parten = "第[0-9一二三四五六七八九十百千]*[章回].*"
@@ -106,50 +105,42 @@ class ReadTextParser: NSObject {
         let content = ReadParser.contentTypesetting(content: content)
         
         // 正则匹配结果
-        var results:[NSTextCheckingResult] = []
+        var results: [NSTextCheckingResult] = []
         
         // 开始匹配
-        do{
-            let regularExpression:NSRegularExpression = try NSRegularExpression(pattern: parten, options: .caseInsensitive)
-            
+        do {
+            let regularExpression: NSRegularExpression = try NSRegularExpression(pattern: parten, options: .caseInsensitive)
             results = regularExpression.matches(in: content, options: .reportCompletion, range: NSRange(location: 0, length: content.length))
-            
-        }catch{
-            
+        } catch {
             return chapterListModels
         }
         
         // 解析匹配结果
         if !results.isEmpty {
-            
             // 章节数量
             let count = results.count
             
             // 记录最后一个Range
-            var lastRange:NSRange!
+            var lastRange: NSRange!
             
-            // 记录最后一个章节对象C
-            var lastChapterModel:ReadChapterModel?
+            // 记录最后一个章节对象
+            var lastChapterModel: ReadChapterModel?
             
             // 有前言
-            var isHavePreface:Bool = true
+            var isHavePreface: Bool = true
             
-            // 便利
+            // 遍历
             for i in 0...count {
-                
                 // 章节数量分析:
                 // count + 1  = 匹配到的章节数量 + 最后一个章节
                 // 1 + count + 1  = 第一章前面的前言内容 + 匹配到的章节数量 + 最后一个章节
                 DZMLog("章节总数: \(count + 1)  当前正在解析: \(i + 1)")
                 
                 var range = NSMakeRange(0, 0)
-                
                 var location = 0
                 
                 if i < count {
-                    
                     range = results[i].range
-                    
                     location = range.location
                 }
                 
@@ -160,13 +151,12 @@ class ReadTextParser: NSObject {
                 chapterModel.bookID = bookID
                 
                 // 章节ID
-                chapterModel.id = NSNumber(value: (i + NSNumber(value: isHavePreface).intValue))
+                chapterModel.id = i + (isHavePreface ? 1 : 0)
                 
                 // 优先级
-                chapterModel.priority = NSNumber(value: (i - NSNumber(value: !isHavePreface).intValue))
+                chapterModel.priority = i - (!isHavePreface ? 1 : 0)
                 
                 if i == 0 { // 前言
-                    
                     // 章节名
                     chapterModel.name = "开始"
                     
@@ -178,22 +168,18 @@ class ReadTextParser: NSObject {
                     
                     // 没有内容则不需要添加列表
                     if chapterModel.content.isEmpty {
-                        
                         isHavePreface = false
-                        
                         continue
                     }
                     
-                }else if i == count { // 结尾
-                    
+                } else if i == count { // 结尾
                     // 章节名
                     chapterModel.name = content.substring(lastRange)
                     
                     // 内容(不包含章节名)
                     chapterModel.content = content.substring(NSMakeRange(lastRange.location + lastRange.length, content.length - lastRange.location - lastRange.length))
                     
-                }else { // 中间章节
-                    
+                } else { // 中间章节
                     // 章节名
                     chapterModel.name = content.substring(lastRange)
                     
@@ -205,14 +191,14 @@ class ReadTextParser: NSObject {
                 chapterModel.content = DZM_READ_PH_SPACE + chapterModel.content.removeSEHeadAndTail
                 
                 // 设置上一个章节ID
-                chapterModel.previousChapterID = lastChapterModel?.id ?? DZM_READ_NO_MORE_CHAPTER
+                chapterModel.previousChapterID = lastChapterModel?.id ?? 0
                 
                 // 设置下一个章节ID
                 if i == (count - 1) { // 最后一个章节了
-                    
-                    chapterModel.nextChapterID = DZM_READ_NO_MORE_CHAPTER
-
-                }else{ lastChapterModel?.nextChapterID = chapterModel.id }
+                    chapterModel.nextChapterID = 0
+                } else {
+                    lastChapterModel?.nextChapterID = chapterModel.id
+                }
                 
                 // 保存
                 chapterModel.save()
@@ -226,8 +212,7 @@ class ReadTextParser: NSObject {
                 chapterListModels.append(GetChapterListModel(chapterModel: chapterModel))
             }
             
-        }else{
-            
+        } else {
             // 章节内容
             let chapterModel = ReadChapterModel()
             
@@ -235,13 +220,13 @@ class ReadTextParser: NSObject {
             chapterModel.bookID = bookID
             
             // 章节ID
-            chapterModel.id = NSNumber(value: 1)
+            chapterModel.id = 1
             
             // 章节名
             chapterModel.name = "开始"
             
             // 优先级
-            chapterModel.priority = NSNumber(value: 0)
+            chapterModel.priority = 0
             
             // 内容
             chapterModel.content = DZM_READ_PH_SPACE + content.removeSEHeadAndTail
@@ -249,11 +234,10 @@ class ReadTextParser: NSObject {
             // 保存
             chapterModel.save()
             
-            // 添加章节列表模型
+            // 通过章节内容生成章节列表
             chapterListModels.append(GetChapterListModel(chapterModel: chapterModel))
         }
         
-        // 返回
         return chapterListModels
     }
     

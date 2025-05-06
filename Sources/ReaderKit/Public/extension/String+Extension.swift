@@ -62,12 +62,9 @@ extension String {
     
     /// 是否为数字或Float
     var isFloat:Bool {
-        
-        let scan: Scanner = Scanner(string: self)
-        
-        var val:Float = 0
-        
-        return scan.scanFloat(&val) && scan.isAtEnd
+        let formatter = NumberFormatter()
+        formatter.numberStyle = .decimal
+        return formatter.number(from: self) != nil
     }
     
     /// 是否为空格

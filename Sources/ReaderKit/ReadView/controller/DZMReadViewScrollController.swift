@@ -23,10 +23,10 @@ class ReadViewScrollController: ViewController,UITableViewDelegate,UITableViewDa
     private var bottomView:ReadViewStatusBottomView!
     
     /// 当前阅读章节ID列表(只会存放本次阅读的列表)
-    private var chapterIDs:[NSNumber] = []
+    private var chapterIDs:[Int] = []
     
     /// 当前正在加载的章节
-    private var loadChapterIDs:[NSNumber] = []
+    private var loadChapterIDs:[Int] = []
     
     /// 当前阅读的章节列表,通过已有的章节ID列表,来获取章节模型。
     private var chapterModels:[String:ReadChapterModel] = [:]
@@ -52,7 +52,7 @@ class ReadViewScrollController: ViewController,UITableViewDelegate,UITableViewDa
         tableView.backgroundColor = .clear
         
         // 定位上次阅读位置
-        tableView.scrollToRow(at: IndexPath(row: vc.readModel.recordModel.page.intValue, section: 0), at: .top, animated: false)
+        tableView.scrollToRow(at: IndexPath(row: vc.readModel.recordModel.page, section: 0), at: .top, animated: false)
     }
     
     override func addSubviews() {
@@ -139,7 +139,7 @@ class ReadViewScrollController: ViewController,UITableViewDelegate,UITableViewDa
         let chapterModel = GetChapterModel(chapterID: chapterID)
         
         // 有数据则返回页数
-        if chapterModel != nil { return chapterModel!.pageCount.intValue }
+        if chapterModel != nil { return chapterModel!.pageCount }
         
         // 没有数据或者正在加载
         return 0
@@ -147,27 +147,19 @@ class ReadViewScrollController: ViewController,UITableViewDelegate,UITableViewDa
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let chapterID = chapterIDs[indexPath.section]
-        let chapterModel = GetChapterModel(chapterID: chapterID)
+        guard let chapterModel = GetChapterModel(chapterID: chapterID) else { return UITableViewCell() }
         
-        let pageModel = chapterModel!.pageModels[indexPath.row]
-        
+        let pageModel = chapterModel.pageModels[indexPath.row]
         
         // 是否为书籍首页
         if pageModel.isHomePage {
-            
             let cell = ReadHomeViewCell.cell(tableView)
-            
             cell.homeView.readModel = vc.readModel
             return cell
-            
-        }else{
-            
+        } else {
             let cell = ReadViewCell.cell(tableView)
-            
             cell.pageModel = pageModel
-            
             return cell
-
         }
     }
     
@@ -194,7 +186,7 @@ class ReadViewScrollController: ViewController,UITableViewDelegate,UITableViewDa
             headerView.backgroundColor = .clear
         }
         
-        let chapterModel = chapterModels[chapterIDs[section].stringValue]
+        guard let chapterModel = chapterModels[String(chapterIDs[section])] else { return }
         
         // 预加载上一章
         preloadingPrevious(chapterModel)
@@ -225,14 +217,12 @@ class ReadViewScrollController: ViewController,UITableViewDelegate,UITableViewDa
         if indexPath.row != 0 { return }
         
         let chapterID = chapterIDs[indexPath.section]
+        guard let chapterModel = GetChapterModel(chapterID: chapterID) else { return }
         
-        let chapterModel = GetChapterModel(chapterID: chapterID)
-        let pageModel = chapterModel!.pageModels[indexPath.row]
+        let pageModel = chapterModel.pageModels[indexPath.row]
         
         if pageModel.isHomePage {
-            
             topView?.isHidden = false
-            
             bottomView?.isHidden = false
         }
     }
@@ -290,112 +280,74 @@ class ReadViewScrollController: ViewController,UITableViewDelegate,UITableViewDa
     // MARK: 阅读记录以及进度
     
     /// 更新阅读记录(滚动模式) isRollingUp:是否为往上滚动
-    private func updateReadRecord(isRollingUp:Bool) {
-        
+    private func updateReadRecord(isRollingUp: Bool) {
         let indexPaths = tableView.indexPathsForVisibleRows
         
         // 异步更新(推荐使用异步)
         DispatchQueue.global().async { [weak self] () in
+            guard let self = self,
+                  let indexPaths = indexPaths,
+                  !indexPaths.isEmpty else { return }
             
-            if indexPaths != nil && !indexPaths!.isEmpty {
+            let indexPath: IndexPath = isRollingUp ? indexPaths.last! : indexPaths.first!
+            let chapterID = self.chapterIDs[indexPath.section]
+            
+            guard let chapterModel = self.GetChapterModel(chapterID: chapterID) else { return }
+            
+            self.vc.readModel.recordModel.modify(chapterModel: chapterModel, page: indexPath.row)
+            _READ_RECORD_CURRENT_CHAPTER_LOCATION = self.vc.readModel.recordModel.locationFirst
+            
+            DispatchQueue.main.async { [weak self] () in
+                guard let self = self else { return }
                 
-                let indexPath:IndexPath = isRollingUp ? indexPaths!.last! : indexPaths!.first!
-                
-                let chapterID = self?.chapterIDs[indexPath.section]
-                
-                let chapterModel = self?.GetChapterModel(chapterID: chapterID!)
-                
-                self?.vc.readModel.recordModel.modify(chapterModel: chapterModel, page: indexPath.row)
-                
-                _READ_RECORD_CURRENT_CHAPTER_LOCATION = self?.vc.readModel.recordModel.locationFirst
-                
-                DispatchQueue.main.async { [weak self] () in
-                    
-                    self?.topView.bookNameLabel.text = chapterModel?.name
-                    self?.topView.chapterLabel.text = chapterModel?.name
-                    self?.bottomView.bookNameLabel.text = chapterModel?.name
-                    self?.bottomView.chapterLabel.text = chapterModel?.name
-                    self?.reloadProgress()
-                }
+                self.topView.bookNameLabel.text = chapterModel.name
+                self.topView.chapterLabel.text = chapterModel.name
+                self.bottomView.bookNameLabel.text = chapterModel.name
+                self.bottomView.chapterLabel.text = chapterModel.name
+                self.reloadProgress()
             }
         }
-        
-        // 主线程更新
-        //        if indexPaths != nil && !indexPaths!.isEmpty {
-        //
-        //            let indexPath:IndexPath = isRollingUp ? indexPaths!.last! : indexPaths!.first!
-        //
-        //            let chapterID = chapterIDs[indexPath.section]
-        //
-        //            let chapterModel = GetChapterModel(chapterID: chapterID)
-        //
-        //            readModel.recordModel.modify(chapterModel: chapterModel, page: indexPath.row)
-        //
-        //            topView.chapterName.text = chapterModel?.name
-        //
-        //            reloadProgress()
-        //        }
     }
     
     /// 刷新阅读进度显示
     private func reloadProgress() {
+        guard let chapterModel = vc.readModel.recordModel.chapterModel else { return }
+        
         let progress: Float = DZM_READ_TOTAL_PROGRESS(readModel: vc.readModel, recordModel: vc.readModel.recordModel)
         
-        bottomView.pageLabel.text = "\(vc.readModel.recordModel.page.intValue + 1)/\(vc.readModel.recordModel.chapterModel!.pageCount.intValue)"
-        bottomView.chapterLabel.text = vc.readModel.recordModel.chapterModel.name
+        bottomView.pageLabel.text = "\(vc.readModel.recordModel.page + 1)/\(chapterModel.pageCount)"
+        bottomView.chapterLabel.text = chapterModel.name
         bottomView.bookNameLabel.text = vc.readModel.bookName
         bottomView.progressLabel.text = DZM_READ_TOTAL_PROGRESS_STRING(progress: progress)
         
-        topView.chapterLabel.text = vc.readModel.recordModel.chapterModel.name
+        topView.chapterLabel.text = chapterModel.name
         topView.bookNameLabel.text = vc.readModel.bookName
         topView.progressLabel.text = DZM_READ_TOTAL_PROGRESS_STRING(progress: progress)
-        topView.pageLabel.text = "\(vc.readModel.recordModel.page.intValue + 1)/\(vc.readModel.recordModel.chapterModel!.pageCount.intValue)"
-        // if ReaderLayoutManager.shared.progressType == .total { // 总进度
-        
-        //     // 当前阅读进度
-        //     let progress:Float = _READ_TOTAL_PROGRESS(readModel: vc.readModel, recordModel: vc.readModel.recordModel)
-        
-        //     // 显示进度
-        //     bottomView.progress.text = _READ_TOTAL_PROGRESS_STRING(progress: progress)
-        
-        
-        // }else{ // 分页进度
-        
-        //     // 显示进度
-        //     bottomView.progress.text = "\(vc.readModel.recordModel.page.intValue + 1)/\(vc.readModel.recordModel.chapterModel!.pageCount.intValue)"
-        // }
+        topView.pageLabel.text = "\(vc.readModel.recordModel.page + 1)/\(chapterModel.pageCount)"
     }
     
     // MARK: 获得阅读数据
     
     /// 获取章节内容模型
-    private func GetChapterModel(chapterID:NSNumber) ->ReadChapterModel? {
+    private func GetChapterModel(chapterID: Int) -> ReadChapterModel? {
+        var chapterModel: ReadChapterModel? = nil
         
-        var chapterModel:ReadChapterModel? = nil
-        
-        if chapterModels.keys.contains(chapterID.stringValue) { // 内存中存在章节内容
-            
-            chapterModel = chapterModels[chapterID.stringValue]
-            
-        }else{ // 内存中不存在章节列表
-            
+        if chapterModels.keys.contains(String(chapterID)) { // 内存中存在章节内容
+            chapterModel = chapterModels[String(chapterID)]
+        } else { // 内存中不存在章节列表
             // 检查是否存在章节内容
             let isExist = ReadChapterModel.isExist(bookID: vc.readModel.bookID, chapterID: chapterID)
             
             // 存在 || 不存在(但是为本地阅读)
             if isExist || vc.readModel.bookSourceType == .local {
-                
                 // 获取章节数据
                 if !isExist {
-                    
                     chapterModel = ReadTextFastParser.parser(readModel: vc.readModel, chapterID: chapterID)
-                    
-                }else{
-                    
+                } else {
                     chapterModel = ReadChapterModel.model(bookID: vc.readModel.bookID, chapterID: chapterID)
                 }
                 
-                chapterModels[chapterID.stringValue] = chapterModel
+                chapterModels[String(chapterID)] = chapterModel
             }
         }
         
@@ -406,46 +358,45 @@ class ReadViewScrollController: ViewController,UITableViewDelegate,UITableViewDa
     // MARK: 预加载数据
     
     /// 预加载上一个章节
-    private func preloadingPrevious(_ chapterModel:ReadChapterModel!) {
-        
+    private func preloadingPrevious(_ chapterModel: ReadChapterModel) {
         // 章节ID
         let chapterID = chapterModel.previousChapterID
         
         // 是否有章节 || 是否为第一章 || 是否正在加载 || 是否已经存在阅读列表
-        if (chapterModel == nil) || chapterModel.isFirstChapter || loadChapterIDs.contains(chapterID!) || chapterIDs.contains(chapterID!) { return }
+        if chapterModel.isFirstChapter || loadChapterIDs.contains(chapterID) || chapterIDs.contains(chapterID) { return }
         
         // 加入加载列表
-        loadChapterIDs.append(chapterID!)
+        loadChapterIDs.append(chapterID)
         
         // 书籍ID
         let bookID = chapterModel.bookID
         
         // 由于字典在异步下存在线程安全，这里换成同步，防止字典内对象中途释放或者野指针
         DispatchQueue.global().sync { [weak self] () in
+            guard let self = self else { return }
             
             // 检查是否存在章节内容
             let isExist = ReadChapterModel.isExist(bookID: bookID, chapterID: chapterID)
             
             // 存在 || 不存在(但是为本地阅读)
-            if isExist || self?.vc.readModel.bookSourceType == .local {
-                
+            if isExist || self.vc.readModel.bookSourceType == .local {
                 // 章节内容
-                var tempChapterModel:ReadChapterModel!
+                var tempChapterModel: ReadChapterModel!
                 
                 // 获取章节数据
                 if !isExist {
                     // 章节还没从全文里面解析出来，需要解析出来使用
-                    tempChapterModel = ReadTextFastParser.parser(readModel: self?.vc.readModel, chapterID: chapterID)
+                    tempChapterModel = ReadTextFastParser.parser(readModel: self.vc.readModel, chapterID: chapterID)
                 } else {
                     // 本地存在章节，取出来使用
-                    tempChapterModel = ReadChapterModel.model(bookID: bookID, chapterID: chapterID!)
+                    tempChapterModel = ReadChapterModel.model(bookID: bookID, chapterID: chapterID)
                 }
                 
                 // 确保章节模型不为空
                 guard let finalChapterModel = tempChapterModel else { return }
                 
                 // 加入阅读内容列表
-                self?.chapterModels[chapterID!.stringValue] = finalChapterModel
+                self.chapterModels[String(chapterID)] = finalChapterModel
                 
                 DispatchQueue.main.async { [weak self] () in
                     guard let self = self else { return }
@@ -454,10 +405,10 @@ class ReadViewScrollController: ViewController,UITableViewDelegate,UITableViewDa
                     let previousIndex = max(0, self.chapterIDs.firstIndex(of: chapterModel.id)! - 1)
                     
                     // 加载列表索引
-                    let loadIndex = self.loadChapterIDs.firstIndex(of: chapterID!)!
+                    let loadIndex = self.loadChapterIDs.firstIndex(of: chapterID)!
                     
                     // 阅读章节ID列表加入
-                    self.chapterIDs.insert(chapterID!, at: previousIndex)
+                    self.chapterIDs.insert(chapterID, at: previousIndex)
                     
                     // 移除加载列表
                     self.loadChapterIDs.remove(at: loadIndex)
@@ -468,9 +419,8 @@ class ReadViewScrollController: ViewController,UITableViewDelegate,UITableViewDa
                     // 调整内容偏移
                     self.tableView.contentOffset = CGPoint(x: 0, y: self.tableView.contentOffset.y + finalChapterModel.pageTotalHeight)
                 }
-                
             } else { // 加载网络章节数据
-                let tempChapterModel = queryChapterData(bookID: bookID!, chapterID: chapterID)
+                let tempChapterModel = queryChapterData(bookID: bookID, chapterID: chapterID)
                 
                 // 确保章节模型不为空
                 guard let finalChapterModel = tempChapterModel else { return }
@@ -479,16 +429,16 @@ class ReadViewScrollController: ViewController,UITableViewDelegate,UITableViewDa
                     guard let self = self else { return }
                     
                     // 加入阅读内容列表
-                    self.chapterModels[chapterID!.stringValue] = finalChapterModel
+                    self.chapterModels[String(chapterID)] = finalChapterModel
                     
                     // 当前章节索引
                     let previousIndex = max(0, self.chapterIDs.firstIndex(of: chapterModel.id)! - 1)
                     
                     // 加载列表索引
-                    let loadIndex = self.loadChapterIDs.firstIndex(of: chapterID!)!
+                    let loadIndex = self.loadChapterIDs.firstIndex(of: chapterID)!
                     
                     // 阅读章节ID列表加入
-                    self.chapterIDs.insert(chapterID!, at: previousIndex)
+                    self.chapterIDs.insert(chapterID, at: previousIndex)
                     
                     // 移除加载列表
                     self.loadChapterIDs.remove(at: loadIndex)
@@ -504,46 +454,45 @@ class ReadViewScrollController: ViewController,UITableViewDelegate,UITableViewDa
     }
     
     /// 预加载下一个章节
-    private func preloadingNext(_ chapterModel:ReadChapterModel!) {
-        
+    private func preloadingNext(_ chapterModel: ReadChapterModel) {
         // 章节ID
         let chapterID = chapterModel.nextChapterID
         
         // 是否有章节 || 是否为最后一章 || 是否正在加载 || 是否已经存在阅读列表
-        if (chapterModel == nil) || chapterModel.isLastChapter || loadChapterIDs.contains(chapterID!) || chapterIDs.contains(chapterID!) { return }
+        if chapterModel.isLastChapter || loadChapterIDs.contains(chapterID) || chapterIDs.contains(chapterID) { return }
         
         // 加入加载列表
-        loadChapterIDs.append(chapterID!)
+        loadChapterIDs.append(chapterID)
         
         // 书籍ID
         let bookID = chapterModel.bookID
         
         // 由于字典在异步下存在线程安全，这里换成同步，防止字典内对象中途释放或者野指针
         DispatchQueue.global().sync { [weak self] () in
+            guard let self = self else { return }
             
             // 检查是否存在章节内容
             let isExist = ReadChapterModel.isExist(bookID: bookID, chapterID: chapterID)
             
             // 存在 || 不存在(但是为本地阅读)
-            if isExist || self?.vc.readModel.bookSourceType == .local {
-                
+            if isExist || self.vc.readModel.bookSourceType == .local {
                 // 章节内容
-                var tempChapterModel:ReadChapterModel!
+                var tempChapterModel: ReadChapterModel!
                 
                 // 获取章节数据
                 if !isExist {
                     // 章节还没从全文里面解析出来，需要解析出来使用
-                    tempChapterModel = ReadTextFastParser.parser(readModel: self?.vc.readModel, chapterID: chapterID)
+                    tempChapterModel = ReadTextFastParser.parser(readModel: self.vc.readModel, chapterID: chapterID)
                 } else {
                     // 本地存在章节，取出来使用
-                    tempChapterModel = ReadChapterModel.model(bookID: bookID, chapterID: chapterID!)
+                    tempChapterModel = ReadChapterModel.model(bookID: bookID, chapterID: chapterID)
                 }
                 
                 // 确保章节模型不为空
                 guard let finalChapterModel = tempChapterModel else { return }
                 
                 // 加入阅读内容列表
-                self?.chapterModels[chapterID!.stringValue] = finalChapterModel
+                self.chapterModels[String(chapterID)] = finalChapterModel
                 
                 DispatchQueue.main.async { [weak self] () in
                     guard let self = self else { return }
@@ -552,10 +501,10 @@ class ReadViewScrollController: ViewController,UITableViewDelegate,UITableViewDa
                     let nextIndex = self.chapterIDs.firstIndex(of: chapterModel.id)! + 1
                     
                     // 加载列表索引
-                    let loadIndex = self.loadChapterIDs.firstIndex(of: chapterID!)!
+                    let loadIndex = self.loadChapterIDs.firstIndex(of: chapterID)!
                     
                     // 阅读章节ID列表加入
-                    self.chapterIDs.insert(chapterID!, at: nextIndex)
+                    self.chapterIDs.insert(chapterID, at: nextIndex)
                     
                     // 移除加载列表
                     self.loadChapterIDs.remove(at: loadIndex)
@@ -563,9 +512,8 @@ class ReadViewScrollController: ViewController,UITableViewDelegate,UITableViewDa
                     // 刷新整个tableView
                     self.tableView.reloadData()
                 }
-                
             } else { // 加载网络章节数据
-                let tempChapterModel = queryChapterData(bookID: bookID!, chapterID: chapterID)
+                let tempChapterModel = queryChapterData(bookID: bookID, chapterID: chapterID)
                 
                 // 确保章节模型不为空
                 guard let finalChapterModel = tempChapterModel else { return }
@@ -574,16 +522,16 @@ class ReadViewScrollController: ViewController,UITableViewDelegate,UITableViewDa
                     guard let self = self else { return }
                     
                     // 加入阅读内容列表
-                    self.chapterModels[chapterID!.stringValue] = finalChapterModel
+                    self.chapterModels[String(chapterID)] = finalChapterModel
                     
                     // 当前章节索引
                     let nextIndex = self.chapterIDs.firstIndex(of: chapterModel.id)! + 1
                     
                     // 加载列表索引
-                    let loadIndex = self.loadChapterIDs.firstIndex(of: chapterID!)!
+                    let loadIndex = self.loadChapterIDs.firstIndex(of: chapterID)!
                     
                     // 阅读章节ID列表加入
-                    self.chapterIDs.insert(chapterID!, at: nextIndex)
+                    self.chapterIDs.insert(chapterID, at: nextIndex)
                     
                     // 移除加载列表
                     self.loadChapterIDs.remove(at: loadIndex)

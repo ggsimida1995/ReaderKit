@@ -33,7 +33,7 @@ struct PageTurnControllerRepresentable<Controller: PageTurnController>: UIViewCo
 /// 阅读内容服务协议 - 提供获取章节内容的方法
 protocol ReaderContentService {
     /// 根据书籍ID和章节ID获取章节模型
-    func getChapter(bookID: String, chapterID: NSNumber) -> ReadChapterModel?
+    func getChapter(bookID: String, chapterID: Int) -> ReadChapterModel?
 }
 
 /// 模拟数据工具类 - 参照DZMReadModel结构创建
@@ -50,13 +50,13 @@ class MockReaderData: ReaderContentService {
         readModel.bookID = bookID
         readModel.bookName = "山海经"
         readModel.bookSourceType = .network
-        readModel.chapterCount = NSNumber(value: 10)
+        readModel.chapterCount = 10
         
         // 创建章节列表
         var chapterListModels: [ReadChapterListModel] = []
         for i in 1...10 {
             let chapterModel = ReadChapterListModel()
-            chapterModel.id = NSNumber(value: i)
+            chapterModel.id = i
             chapterModel.name = "第\(i)章 " + getChapterName(for: i)
             chapterListModels.append(chapterModel)
         }
@@ -70,12 +70,12 @@ class MockReaderData: ReaderContentService {
         recordModel.bookID = bookID
         
         // 创建当前章节并设置内容
-        let currentChapterID = NSNumber(value: 1) // 从第一章开始
+        let currentChapterID = 1 // 从第一章开始
         let chapterModel = createChapterModel(bookID: bookID, chapterID: currentChapterID)
         
         // 设置记录模型
         recordModel.chapterModel = chapterModel
-        recordModel.page = NSNumber(value: 0) // 从第0页开始
+        recordModel.page = 0 // 从第0页开始
         
         readModel.recordModel = recordModel
         
@@ -83,7 +83,7 @@ class MockReaderData: ReaderContentService {
     }
     
     // 创建章节模型
-    func createChapterModel(bookID: String, chapterID: NSNumber) -> ReadChapterModel {
+    func createChapterModel(bookID: String, chapterID: Int) -> ReadChapterModel {
         // 检查缓存中是否已存在该章节
         let cacheKey = "\(bookID)_\(chapterID)"
         if let cachedChapter = chapterCache[cacheKey] {
@@ -94,15 +94,14 @@ class MockReaderData: ReaderContentService {
         chapterModel.bookID = bookID
         chapterModel.id = chapterID
         
-        let id = chapterID.intValue
-        chapterModel.name = "第\(id)章 " + getChapterName(for: id)
+        chapterModel.name = "第\(chapterID)章 " + getChapterName(for: chapterID)
         
         // 设置上一章和下一章
-        chapterModel.previousChapterID = id > 1 ? NSNumber(value: id - 1) : NSNumber(value: -1)
-        chapterModel.nextChapterID = id < 10 ? NSNumber(value: id + 1) : NSNumber(value: -1)
+        chapterModel.previousChapterID = chapterID > 1 ? chapterID - 1 : 0
+        chapterModel.nextChapterID = chapterID < 10 ? chapterID + 1 : 0
         
         // 获取章节内容
-        chapterModel.content = getChapterContent(for: id)
+        chapterModel.content = getChapterContent(for: chapterID)
         chapterModel.isContentEmpty = chapterModel.content.isEmpty
         
         // 更新字体和分页
@@ -117,9 +116,9 @@ class MockReaderData: ReaderContentService {
     // MARK: - ReaderContentService Protocol
     
     /// 根据书籍ID和章节ID获取章节模型
-    func getChapter(bookID: String, chapterID: NSNumber) -> ReadChapterModel? {
+    func getChapter(bookID: String, chapterID: Int) -> ReadChapterModel? {
         // 检查章节ID是否有效
-        if chapterID.intValue < 1 || chapterID.intValue > 10 {
+        if chapterID < 1 || chapterID > 10 {
             return nil
         }
         
@@ -175,35 +174,35 @@ class MockReaderData: ReaderContentService {
 /// 用于设置阅读器内容服务的扩展类别
 extension ReadController {
     /// 重写获取章节内容的方法（与原有queryChapterData方法逻辑对应，无返回值版本）
-    @objc func queryChapterData(bookID: String, chapterID: NSNumber) {
+    @objc func queryChapterData(bookID: String, chapterID: Int) {
         print("请求章节: bookID=\(bookID), chapterID=\(chapterID)")
         
         // 创建章节模型
         let chapterModel = ReadChapterModel.model(bookID: bookID, chapterID: chapterID)
         
         // 设置章节内容
-        chapterModel.content = getChapterContent(for: chapterID.intValue)
+        chapterModel.content = getChapterContent(for: chapterID)
         chapterModel.isContentEmpty = chapterModel.content.isEmpty
         
         // 设置章节名称
-        chapterModel.name = "第\(chapterID.intValue)章 " + getChapterName(for: chapterID.intValue)
+        chapterModel.name = "第\(chapterID)章 " + getChapterName(for: chapterID)
         
         // 设置优先级
         chapterModel.priority = chapterModel.id
         
         // 需要判断是否是第一章或者最后一章
-        if chapterID.intValue == 1 {
-            chapterModel.previousChapterID = NSNumber(value: -1) // DZM_READ_NO_MORE_CHAPTER
+        if chapterID == 1 {
+            chapterModel.previousChapterID = 0 // DZM_READ_NO_MORE_CHAPTER
         } else {
-            chapterModel.previousChapterID = NSNumber(value: chapterID.intValue - 1)
+            chapterModel.previousChapterID = chapterID - 1
         }
         
         // 总章节数
         let chapterCount = 10
-        if chapterID.intValue == chapterCount {
-            chapterModel.nextChapterID = NSNumber(value: -1) // DZM_READ_NO_MORE_CHAPTER
+        if chapterID == chapterCount {
+            chapterModel.nextChapterID = 0 // DZM_READ_NO_MORE_CHAPTER
         } else {
-            chapterModel.nextChapterID = NSNumber(value: chapterID.intValue + 1)
+            chapterModel.nextChapterID = chapterID + 1
         }
         
         // 刷新分页
@@ -259,40 +258,32 @@ extension ReadController {
 /// 为DZMReadViewScrollController扩展获取章节的方法
 extension ReadViewScrollController {
     /// 重写获取章节内容的方法（返回章节模型版本）
-    @objc func queryChapterData(bookID: String, chapterID: NSNumber!) -> ReadChapterModel? {
-        print("滚动控制器请求章节: bookID=\(bookID), chapterID=\(String(describing: chapterID))")
-        
-        // 检查章节ID是否为nil
-        guard let validChapterID = chapterID else {
-            print("错误: 章节ID为nil")
-            return nil
-        }
+    @objc func queryChapterData(bookID: String, chapterID: Int) -> ReadChapterModel? {
+        print("滚动控制器请求章节: bookID=\(bookID), chapterID=\(chapterID)")
         
         // 创建章节模型
-        let chapterModel = ReadChapterModel.model(bookID: bookID, chapterID: validChapterID)
+        let chapterModel = ReadChapterModel.model(bookID: bookID, chapterID: chapterID)
         
         // 设置章节内容
-        chapterModel.content = getChapterContent(for: validChapterID.intValue)
-
-        print("chapterModel.content: \(chapterModel.content)")
+        chapterModel.content = getChapterContent(for: chapterID)
         chapterModel.isContentEmpty = chapterModel.content.isEmpty
         
         // 设置章节名称
-        chapterModel.name = "第\(validChapterID.intValue)章 " + getChapterName(for: validChapterID.intValue)
+        chapterModel.name = "第\(chapterID)章 " + getChapterName(for: chapterID)
         
         // 需要判断是否是第一章或者最后一章
-        if validChapterID.intValue == 1 {
-            chapterModel.previousChapterID = NSNumber(value: -1) // DZM_READ_NO_MORE_CHAPTER
+        if chapterID == 1 {
+            chapterModel.previousChapterID = 0 // DZM_READ_NO_MORE_CHAPTER
         } else {
-            chapterModel.previousChapterID = NSNumber(value: validChapterID.intValue - 1)
+            chapterModel.previousChapterID = chapterID - 1
         }
         
         // 总章节数
         let chapterCount = 10
-        if validChapterID.intValue == chapterCount {
-            chapterModel.nextChapterID = NSNumber(value: -1) // DZM_READ_NO_MORE_CHAPTER
+        if chapterID == chapterCount {
+            chapterModel.nextChapterID = 0 // DZM_READ_NO_MORE_CHAPTER
         } else {
-            chapterModel.nextChapterID = NSNumber(value: validChapterID.intValue + 1)
+            chapterModel.nextChapterID = chapterID + 1
         }
         
         // 刷新分页

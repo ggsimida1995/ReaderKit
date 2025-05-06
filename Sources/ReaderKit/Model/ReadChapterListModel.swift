@@ -8,44 +8,39 @@
 
 import UIKit
 
-class ReadChapterListModel: NSObject,NSCoding {
+class ReadChapterListModel: NSObject, NSCoding {
     
     /// 章节ID
-    @objc var id:NSNumber!
+    @objc var id: Int = 0
 
     /// 小说ID
-    var bookID:String!
+    var bookID: String = ""
     
     /// 章节名称
-    var name:String!
+    var name: String = ""
     
     // MARK: -- NSCoding
     
     required init?(coder aDecoder: NSCoder) {
-        
         super.init()
         
-        bookID = aDecoder.decodeObject(forKey: "bookID") as? String
-        
-        id = aDecoder.decodeObject(forKey: "id") as? NSNumber
-        
-        name = aDecoder.decodeObject(forKey: "name") as? String
+        bookID = aDecoder.decodeObject(forKey: "bookID") as? String ?? ""
+        id = aDecoder.decodeInteger(forKey: "id")
+        name = aDecoder.decodeObject(forKey: "name") as? String ?? ""
     }
     
     func encode(with aCoder: NSCoder) {
-        
         aCoder.encode(bookID, forKey: "bookID")
-        
         aCoder.encode(id, forKey: "id")
-        
         aCoder.encode(name, forKey: "name")
     }
     
-    init(_ dict:Any? = nil) {
-        
+    init(_ dict: [String: Any]? = nil) {
         super.init()
         
-        if dict != nil { setValuesForKeys(dict as! [String : Any]) }
+        if let dict = dict {
+            setValuesForKeys(dict)
+        }
     }
     
     override func setValue(_ value: Any?, forUndefinedKey key: String) { }
