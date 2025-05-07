@@ -1,9 +1,9 @@
 //
-//  DZMReadTextFastParser.swift
-//  DZMeBookRead
+//  ReadTextFastParser.swift
+//  eBookRead
 //
-//  Created by dengzemiao on 2019/5/15.
-//  Copyright © 2019 DZM. All rights reserved.
+//  Created by ggsimida on 2025/5/6.
+//  Copyright © 2025年 . All rights reserved.
 //
 
 import UIKit

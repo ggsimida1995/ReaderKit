@@ -2,8 +2,8 @@
 //  ReadChapterListModel.swift
 //  eBookRead
 //
-//  Created by dengzemiao on 2019/4/17.
-//  Copyright © 2019年 . All rights reserved.
+//  Created by ggsimida on 2025/5/6.
+//  Copyright © 2025年 . All rights reserved.
 //
 
 import UIKit
