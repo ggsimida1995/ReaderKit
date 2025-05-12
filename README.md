@@ -143,4 +143,195 @@ ReaderKit 提供多种方式进行自定义，包括主题、布局和交互方�
 
 ## 许可证
 
-此项目使用 MIT 许可证 - 详情请查看 LICENSE 文件。 
+此项目使用 MIT 许可证 - 详情请查看 LICENSE 文件。
+
+# 章节内容服务说明
+
+## DefaultChapterContentService
+
+### 功能
+提供标准的章节内容获取服务，支持通过书籍ID和章节ID获取完整的章节模型，自动处理内容排版、分页、章节名、前后章节ID等所有关键参数，保证翻页和阅读体验流畅。
+
+### 方法说明
+
+#### getChapter(bookID: String, chapterID: Int) -> ReadChapterModel?
+- **参数**：
+  - `bookID`：书籍唯一标识符（字符串）
+  - `chapterID`：章节编号（从1开始，Int类型）
+- **返回值**：
+  - 返回完整的 `ReadChapterModel` 实例，包含所有章节元数据、内容、分页信息等。
+  - 如果参数无效或章节不存在，返回 `nil`。
+
+- **行为细节**：
+  1. 查询数据库或模拟数据源，获取章节原始内容和章节名。
+  2. 自动设置章节名、内容、是否为空、优先级、上一章ID、下一章ID。
+  3. 内容自动排版，适配阅读器显示需求。
+  4. 自动刷新分页和字体，保证内容显示正确。
+  5. 自动保存章节模型，便于后续快速读取。
+
+### 使用示例
+```swift
+if let chapter = DefaultChapterContentService.shared.getChapter(bookID: "1001", chapterID: 2) {
+    // 章节内容已完整设置，可直接用于阅读器显示和翻页
+    print(chapter.name)
+    print(chapter.content)
+    print("上一章ID: \(chapter.previousChapterID) 下一章ID: \(chapter.nextChapterID)")
+}
+```
+
+### 扩展说明
+- 如需对接真实数据库，只需将 `getChapter` 方法中的 Mock 数据替换为数据库查询逻辑，并保证所有参数设置完整。
+- 所有章节模型参数请参考 `ReadChapterModel` 的定义。
+
+---
+
+如有疑问或需进一步扩展，请联系开发者或查阅 Apple 官方 [iOS开发文档](https://developer.apple.com/documentation/)。
+
+## 作为扩展库使用
+
+ReaderKit 可以作为独立的扩展库集成到您的项目中，并支持传入自定义的阅读模型。
+
+### 配置和初始化
+
+首先，使用自定义配置初始化 ReaderKit：
+
+```swift
+import ReaderKit
+import SwiftUI
+
+// 初始化ReaderKit并配置
+ReaderKit.initialize(with: ReaderKit.Configuration(
+    isDebugMode: true,
+    defaultFontSize: 18,
+    defaultTheme: .light
+))
+```
+
+### 使用自定义阅读模型
+
+ReaderKit 支持传入自定义的 `RKReadModel` 实例，以便与现有项目的数据模型无缝集成：
+
+```swift
+import ReaderKit
+import SwiftUI
+
+struct BookReaderView: View {
+    // 您应用中的书籍数据
+    let bookID: String
+    let bookName: String
+    let chapters: [ChapterInfo] // 您自己的章节信息结构
+    
+    var body: some View {
+        // 创建阅读模型
+        let readModel = createCustomReadModel()
+        
+        // 使用自定义阅读模型的阅读器视图
+        return ReaderKit.readerView(with: readModel)
+    }
+    
+    // 创建自定义阅读模型
+    private func createCustomReadModel() -> RKReadModel {
+        // 将您的章节信息转换为RKReadChapterListModel
+        let chapterListModels = chapters.enumerated().map { index, chapter -> RKReadChapterListModel in
+            let model = RKReadChapterListModel()
+            model.id = index + 1
+            model.name = chapter.title
+            return model
+        }
+        
+        // 使用ReaderKit提供的便捷方法创建阅读模型
+        return ReaderKit.createReadModel(
+            bookID: bookID,
+            bookName: bookName,
+            chapterListModels: chapterListModels
+        )
+    }
+}
+```
+
+### 使用自定义章节内容服务
+
+您可以实现自己的 `ChapterContentService`，以便从您的后端服务或本地数据库获取章节内容：
+
+```swift
+import ReaderKit
+
+class MyCustomChapterService: ChapterContentService {
+    static let shared = MyCustomChapterService()
+    
+    private init() {}
+    
+    func getChapter(bookID: String, chapterID: Int) -> RKReadChapterModel? {
+        // 1. 从您的API或数据库获取章节内容
+        let chapterContent = fetchChapterFromDatabase(bookID: bookID, chapterID: chapterID)
+        
+        // 2. 创建章节模型
+        let chapterModel = RKReadChapterModel()
+        chapterModel.bookID = bookID
+        chapterModel.id = chapterID
+        chapterModel.name = chapterContent.title
+        
+        // 3. 设置内容并排版
+        chapterModel.content = RKReadParser.contentTypesetting(content: chapterContent.text)
+        chapterModel.isContentEmpty = chapterContent.text.isEmpty
+        
+        // 4. 设置其他必要参数
+        chapterModel.priority = chapterID
+        chapterModel.previousChapterID = chapterID > 1 ? chapterID - 1 : 0
+        chapterModel.nextChapterID = (chapterID < totalChapterCount) ? chapterID + 1 : -1
+        
+        // 5. 分页和字体刷新
+        chapterModel.updateFont()
+        
+        return chapterModel
+    }
+    
+    // 从您的数据来源获取章节内容的方法
+    private func fetchChapterFromDatabase(bookID: String, chapterID: Int) -> (title: String, text: String) {
+        // 实现您的数据获取逻辑
+        // ...
+        return ("章节标题", "章节内容")
+    }
+}
+```
+
+### 在您的应用中展示阅读器
+
+```swift
+import SwiftUI
+import ReaderKit
+
+struct YourBookDetailView: View {
+    let book: YourBookModel
+    
+    var body: some View {
+        VStack {
+            // 书籍信息展示
+            Text(book.title).font(.title)
+            Text(book.author).font(.subheadline)
+            
+            // 打开阅读器按钮
+            Button("开始阅读") {
+                // 获取章节数据
+                let chapters = fetchChapters(for: book.id)
+                
+                // 创建阅读模型
+                let readModel = ReaderKit.createReadModel(
+                    bookID: book.id,
+                    bookName: book.title,
+                    chapterListModels: chapters
+                )
+                
+                // 打开阅读器视图
+                showReader(with: readModel)
+            }
+        }
+    }
+    
+    // 打开阅读器视图的方法
+    private func showReader(with readModel: RKReadModel) {
+        let readerView = ReaderKit.readerView(with: readModel)
+        // 使用您应用的导航机制展示readerView
+    }
+}
+``` 

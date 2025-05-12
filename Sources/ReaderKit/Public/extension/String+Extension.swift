@@ -1,11 +1,3 @@
-//
-//  String+Extension.swift
-//  DZMeBookRead
-//
-//  Created by dengzemiao on 2019/4/17.
-//  Copyright © 2019年 DZM. All rights reserved.
-//
-
 import UIKit
 import CommonCrypto
 
@@ -62,12 +54,9 @@ extension String {
     
     /// 是否为数字或Float
     var isFloat:Bool {
-        
-        let scan: Scanner = Scanner(string: self)
-        
-        var val:Float = 0
-        
-        return scan.scanFloat(&val) && scan.isAtEnd
+        let formatter = NumberFormatter()
+        formatter.numberStyle = .decimal
+        return formatter.number(from: self) != nil
     }
     
     /// 是否为空格
