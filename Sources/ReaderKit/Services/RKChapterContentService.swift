@@ -35,7 +35,7 @@ class DefaultChapterContentService: ChapterContentService {
             // 章节内容排版处理
             if content.contents.count > 0 {
                 // 章节类容需要进行排版一篇
-                chapterModel.content = RKReadParser.contentTypesetting(content: content.contents)
+                chapterModel.content = RKReadParser.contentTypesetting(content: content.contents.joined(separator: "\n"))
             } else {
                 chapterModel.isContentEmpty = true
                 chapterModel.content = RKReadParser.contentTypesetting(content: "正在加载中。。。")
