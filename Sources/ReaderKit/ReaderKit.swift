@@ -10,20 +10,20 @@ import UIKit
 /// - 主题定制
 /// - 布局管理
 /// - 阅读状态追踪
-public struct ReaderKit {
+struct ReaderKit {
     /// 库的版本号
-    public static let version = "1.0.0"
+    static let version = "1.0.0"
     
     /// ReaderKit配置选项
-    public struct Configuration {
+    struct Configuration {
         /// 是否显示调试日志
-        public var isDebugMode: Bool
+        var isDebugMode: Bool
         /// 默认字体大小
-        public var defaultFontSize: CGFloat
+        var defaultFontSize: CGFloat
         /// 默认主题
-        public var defaultTheme: ReaderTheme
+        var defaultTheme: ReaderTheme
         
-        public init(
+        init(
             isDebugMode: Bool = false,
             defaultFontSize: CGFloat = 16,
             defaultTheme: ReaderTheme = .light
@@ -36,7 +36,7 @@ public struct ReaderKit {
     
     /// 初始化ReaderKit
     /// - Parameter configuration: ReaderKit配置选项
-    public static func initialize(with configuration: Configuration = Configuration()) {
+    static func initialize(with configuration: Configuration = Configuration()) {
         ReaderConfig.shared.configure(with: configuration)
         if configuration.isDebugMode {
             print("ReaderKit \(version) 已初始化")
@@ -46,7 +46,7 @@ public struct ReaderKit {
     /// 获取阅读器视图（使用自定义的阅读模型）
     /// - Parameter readModel: 自定义的阅读模型
     /// - Returns: 返回配置好的阅读器视图
-    public static func readerView(with readModel: RKReadModel) -> some View {
+    static func readerView(with readModel: RKReadModel) -> some View {
         RKReadControllerRepresentable(bookID: readModel.bookID, readModel: readModel)
     }
     
@@ -56,7 +56,7 @@ public struct ReaderKit {
     ///   - bookName: 书籍名称
     ///   - chapterListModels: 章节列表模型数组
     /// - Returns: 返回基础的RKReadModel
-    public static func createReadModel(
+    static func createReadModel(
         bookID: String,
         bookName: String,
         chapterListModels: [RKReadChapterListModel]
@@ -82,19 +82,19 @@ public struct ReaderKit {
 }
 
 /// 阅读器主题
-public enum ReaderTheme {
+enum ReaderTheme {
     case light
     case dark
     case sepia
 }
 
 /// 阅读器公共配置
-public class ReaderConfig {
+class ReaderConfig {
     /// 单例实例
-    public static let shared = ReaderConfig()
+    static let shared = ReaderConfig()
     
     /// 是否显示书籍选择器
-    public var showBookSelector: Bool = true
+    var showBookSelector: Bool = true
     
     /// 当前配置
     private var configuration: ReaderKit.Configuration = .init()
@@ -109,27 +109,27 @@ public class ReaderConfig {
     }
     
     /// 获取当前字体大小
-    public var fontSize: CGFloat {
+    var fontSize: CGFloat {
         configuration.defaultFontSize
     }
     
     /// 获取当前主题
-    public var theme: ReaderTheme {
+    var theme: ReaderTheme {
         configuration.defaultTheme
     }
 }
 
 /// 章节内容模型
-public struct ChapterContent: Codable {
+struct ChapterContent: Codable {
     /// 章节ID
-    public let id: Int
+    let id: Int
     /// 章节标题
-    public let name: String
+    let name: String
     /// 章节内容
-    public let content: String
+    let content: String
     
     /// 初始化
-    public init(id: Int, name: String, content: String) {
+    init(id: Int, name: String, content: String) {
         self.id = id
         self.name = name
         self.content = content
