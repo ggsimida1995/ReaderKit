@@ -2,7 +2,7 @@ import Foundation
 
 /// 章节内容服务协议
 /// 定义获取章节内容的标准接口
-public protocol ChapterContentService {
+protocol ChapterContentService {
     /// 根据书籍ID和章节ID获取章节模型
     /// - Parameters:
     ///   - bookID: 书籍ID
@@ -13,12 +13,12 @@ public protocol ChapterContentService {
 
 /// 默认的章节内容服务实现
 /// 注意：这是一个空实现，实际使用时需要在第三方项目中实现自己的ChapterContentService
-public class DefaultChapterContentService: ChapterContentService {
-    public static let shared = DefaultChapterContentService()
+class DefaultChapterContentService: ChapterContentService {
+    static let shared = DefaultChapterContentService()
     
     private init() {}
     
-    public func getChapter(bookID: String, chapterID: Int) -> RKReadChapterModel? {
+    func getChapter(bookID: String, chapterID: Int) -> RKReadChapterModel? {
         // 这是一个空实现，实际使用时需要在调用项目中提供自己的实现
         print("警告：DefaultChapterContentService是一个空实现。您需要在您的项目中实现ChapterContentService协议并使用您的实现。")
         print("获取章节请求: bookID=\(bookID), chapterID=\(chapterID)")

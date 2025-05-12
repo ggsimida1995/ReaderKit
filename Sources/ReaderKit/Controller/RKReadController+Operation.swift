@@ -305,22 +305,21 @@ extension RKReadController {
         return recordModel
     }
     
-    /// 更新阅读记录(左右翻页模式)
+    /// 更新阅读记录(阅读控制器)
     func updateReadRecord(controller: RKReadViewController!) {
         
         updateReadRecord(recordModel: controller?.recordModel)
     }
     
-    /// 更新阅读记录(左右翻页模式)
+    /// 更新阅读记录(阅读记录)
     func updateReadRecord(recordModel: RKReadRecordModel!) {
         
-        if recordModel != nil {
-            
-            readModel.recordModel = recordModel
-            
-            readModel.recordModel.save()
-            
-            RK_READ_RECORD_CURRENT_CHAPTER_LOCATION = recordModel.locationFirst
-        }
+        if recordModel == nil { return }
+        
+        readModel.recordModel = recordModel
+        
+        readModel.recordModel.save()
+
+        RK_READ_RECORD_CURRENT_CHAPTER_LOCATION = recordModel.locationFirst
     }
 }

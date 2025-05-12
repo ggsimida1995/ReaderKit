@@ -31,7 +31,7 @@ struct PageTurnControllerRepresentable<Controller: PageTurnController>: UIViewCo
 }
 
 /// RKReadController 包装器
- struct RKReadControllerRepresentable: UIViewControllerRepresentable {
+struct RKReadControllerRepresentable: UIViewControllerRepresentable {
     typealias UIViewControllerType = RKReadController
     
     // 书籍ID
@@ -44,12 +44,12 @@ struct PageTurnControllerRepresentable<Controller: PageTurnController>: UIViewCo
     /// - Parameters:
     ///   - bookID: 书籍ID
     ///   - readModel: 阅读模型（必须提供）
-    public init(bookID: String, readModel: RKReadModel) {
+    init(bookID: String, readModel: RKReadModel) {
         self.bookID = bookID
         self.readModel = readModel
     }
     
-    public func makeUIViewController(context: Context) -> RKReadController {
+    func makeUIViewController(context: Context) -> RKReadController {
         let vc = RKReadController()
         
         // 设置阅读控制器的模型
@@ -61,7 +61,7 @@ struct PageTurnControllerRepresentable<Controller: PageTurnController>: UIViewCo
         return vc
     }
     
-    public func updateUIViewController(_ uiViewController: RKReadController, context: Context) {
+    func updateUIViewController(_ uiViewController: RKReadController, context: Context) {
         // 当readModel发生变化时更新控制器
         if readModel.bookID != uiViewController.readModel.bookID {
             uiViewController.readModel = readModel
@@ -70,7 +70,7 @@ struct PageTurnControllerRepresentable<Controller: PageTurnController>: UIViewCo
     }
     
     // 添加析构方法，确保旧控制器被清理
-    public static func dismantleUIViewController(_ uiViewController: RKReadController, coordinator: ()) {
+    static func dismantleUIViewController(_ uiViewController: RKReadController, coordinator: ()) {
         uiViewController.view.removeFromSuperview()
         uiViewController.removeFromParent()
     }
