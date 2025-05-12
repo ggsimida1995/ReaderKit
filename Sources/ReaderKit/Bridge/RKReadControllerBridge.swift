@@ -30,22 +30,27 @@ struct PageTurnControllerRepresentable<Controller: PageTurnController>: UIViewCo
     }
 }
 
-/// DZMReadController 包装器
-struct RKReadControllerRepresentable: UIViewControllerRepresentable {
+/// RKReadController 包装器
+ struct RKReadControllerRepresentable: UIViewControllerRepresentable {
     typealias UIViewControllerType = RKReadController
     
-    // 可选参数：书籍ID
+    // 书籍ID
     var bookID: String
     
-    init(bookID: String = "1001") {
+    // 阅读模型，必须提供
+    var readModel: RKReadModel
+    
+    /// 初始化方法
+    /// - Parameters:
+    ///   - bookID: 书籍ID
+    ///   - readModel: 阅读模型（必须提供）
+    public init(bookID: String, readModel: RKReadModel) {
         self.bookID = bookID
+        self.readModel = readModel
     }
     
-    func makeUIViewController(context: Context) -> RKReadController {
+    public func makeUIViewController(context: Context) -> RKReadController {
         let vc = RKReadController()
-        
-        // 使用模拟数据创建阅读模型
-        let readModel = MockReaderData.shared.createReadModel(bookID: bookID)
         
         // 设置阅读控制器的模型
         vc.readModel = readModel
@@ -56,12 +61,16 @@ struct RKReadControllerRepresentable: UIViewControllerRepresentable {
         return vc
     }
     
-    func updateUIViewController(_ uiViewController: RKReadController, context: Context) {
-        // 如果需要更新配置，可以在这里处理
+    public func updateUIViewController(_ uiViewController: RKReadController, context: Context) {
+        // 当readModel发生变化时更新控制器
+        if readModel.bookID != uiViewController.readModel.bookID {
+            uiViewController.readModel = readModel
+            uiViewController.fetchChapterContent(bookID: readModel.bookID, chapterID: 1)
+        }
     }
     
     // 添加析构方法，确保旧控制器被清理
-    static func dismantleUIViewController(_ uiViewController: RKReadController, coordinator: ()) {
+    public static func dismantleUIViewController(_ uiViewController: RKReadController, coordinator: ()) {
         uiViewController.view.removeFromSuperview()
         uiViewController.removeFromParent()
     }

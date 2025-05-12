@@ -67,7 +67,8 @@ class ReadToastView: UIView {
         frame = CGRect(x: 0, y: 0, width: 200, height: 60)
         
         // 添加到父视图
-        if let contentView = UIApplication.shared.windows.first(where: { $0.isKeyWindow })?.rootViewController?.view {
+        if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+           let contentView = windowScene.windows.first(where: { $0.isKeyWindow })?.rootViewController?.view {
             // 移除之前的 Toast
             removeFromSuperview()
             

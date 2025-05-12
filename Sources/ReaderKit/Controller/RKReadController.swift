@@ -114,7 +114,6 @@ class RKReadController: RKViewController,UIPageViewControllerDelegate,UIPageView
     }
     
     deinit {
-        RKKeyedArchiver.clear()
         // 移除阅读长按视图监控
         _READ_NOTIFICATION_REMOVE(target: self)
         

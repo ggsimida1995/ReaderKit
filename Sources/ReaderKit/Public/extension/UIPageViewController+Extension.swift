@@ -1,7 +1,7 @@
-private var IsGestureRecognizerEnabled = "IsGestureRecognizerEnabled"
-private var TapIsGestureRecognizerEnabled = "TapIsGestureRecognizerEnabled"
-
 import UIKit
+
+private var IsGestureRecognizerEnabled: UInt8 = 0
+private var TapIsGestureRecognizerEnabled: UInt8 = 0
 
 extension UIPageViewController {
 
