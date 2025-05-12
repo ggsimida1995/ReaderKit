@@ -1,4 +1,16 @@
 import Foundation
+
+/// 章节内容服务协议
+/// 定义获取章节内容的标准接口
+protocol ChapterContentService {
+    /// 根据书籍ID和章节ID获取章节模型
+    /// - Parameters:
+    ///   - bookID: 书籍ID
+    ///   - chapterID: 章节ID
+    /// - Returns: 章节模型，如果获取失败则返回nil
+    func getChapter(bookID: String, chapterID: Int) -> RKReadChapterModel?
+}
+
 /// 公共章节提供者协议
 /// 此协议用于外部项目实现，提供章节内容
 public protocol ChapterProvider {
@@ -20,7 +32,7 @@ class DefaultChapterContentService: ChapterContentService {
     
     private init() {}
     
-    func getChapter(bookID: String, chapterID: Int) -> RKReadChapterModel? {
+     func getChapter(bookID: String, chapterID: Int) -> RKReadChapterModel? {
         // 如果有外部提供者，使用外部提供者获取内容
         if let provider = DefaultChapterContentService.externalProvider,
            let content = provider.getChapterContent(bookID: bookID, chapterID: chapterID) {
