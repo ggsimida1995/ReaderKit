@@ -1,14 +1,13 @@
 import Foundation
-
-/// 章节内容服务协议
-/// 定义获取章节内容的标准接口
-protocol ChapterContentService {
-    /// 根据书籍ID和章节ID获取章节模型
+/// 公共章节提供者协议
+/// 此协议用于外部项目实现，提供章节内容
+public protocol ChapterProvider {
+    /// 根据书籍ID和章节ID获取章节内容
     /// - Parameters:
     ///   - bookID: 书籍ID
     ///   - chapterID: 章节ID
-    /// - Returns: 章节模型，如果获取失败则返回nil
-    func getChapter(bookID: String, chapterID: Int) -> RKReadChapterModel?
+    /// - Returns: 章节内容，包含ID、标题和正文
+    func getChapterContent(bookID: String, chapterID: Int) -> ChapterContent?
 }
 
 /// 默认的章节内容服务实现
@@ -16,14 +15,50 @@ protocol ChapterContentService {
 class DefaultChapterContentService: ChapterContentService {
     static let shared = DefaultChapterContentService()
     
+    /// 外部提供的章节内容提供者
+    public static var externalProvider: ChapterProvider?
+    
     private init() {}
     
     func getChapter(bookID: String, chapterID: Int) -> RKReadChapterModel? {
-        // 这是一个空实现，实际使用时需要在调用项目中提供自己的实现
-        print("警告：DefaultChapterContentService是一个空实现。您需要在您的项目中实现ChapterContentService协议并使用您的实现。")
+        // 如果有外部提供者，使用外部提供者获取内容
+        if let provider = DefaultChapterContentService.externalProvider,
+           let content = provider.getChapterContent(bookID: bookID, chapterID: chapterID) {
+            // 创建章节模型
+            let chapterModel = RKReadChapterModel()
+            
+            // 设置基本信息
+            chapterModel.bookID = bookID
+            chapterModel.id = chapterID
+            chapterModel.name = content.name
+            
+            // 章节内容排版处理
+            if content.content.count > 0 {
+                // 章节类容需要进行排版一篇
+                chapterModel.content = RKReadParser.contentTypesetting(content: content.content)
+            } else {
+                chapterModel.isContentEmpty = true
+                chapterModel.content = RKReadParser.contentTypesetting(content: "正在加载中。。。")
+            }
+            // 优先级
+            chapterModel.priority = chapterModel.id
+            
+            // 设置上下章节关系（默认值，可能需要外部提供者补充更多信息）
+            chapterModel.previousChapterID = chapterID > 1 ? chapterID - 1 : 0
+            chapterModel.nextChapterID = chapterID == content.chapterCount ? -1 : chapterID + 1
+            
+            // 更新字体和分页
+            chapterModel.updateFont()
+            
+            chapterModel.save()
+
+            return chapterModel
+        }
+        
+        // 无外部提供者或获取失败
+        print("警告：DefaultChapterContentService无法获取章节内容。请设置externalProvider")
         print("获取章节请求: bookID=\(bookID), chapterID=\(chapterID)")
         
-        // 返回nil，表示无法获取章节
         return nil
     }
 }
@@ -37,7 +72,7 @@ extension RKReadController {
         // 使用新的服务获取章节内容
         if let chapterModel = DefaultChapterContentService.shared.getChapter(bookID: bookID, chapterID: chapterID) {
             // 保存章节
-            chapterModel.save()
+            // chapterModel.save()
         }
     }
 }
