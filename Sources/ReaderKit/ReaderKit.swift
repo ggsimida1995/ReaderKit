@@ -43,6 +43,12 @@ public struct ReaderKit {
         }
     }
     
+    /// 设置章节内容提供者
+    /// - Parameter provider: 实现了ChapterProvider协议的对象
+    public static func setChapterProvider(_ provider: ChapterProvider) {
+        DefaultChapterContentService.externalProvider = provider
+    }
+    
     /// 获取阅读器视图
     /// - Parameters:
     ///   - bookID: 书籍ID
@@ -105,11 +111,13 @@ public struct ChapterContent: Codable {
     public let name: String
     /// 章节内容
     public let content: String
-    
+    /// 总章节数
+    public let chapterCount: Int
     /// 初始化
-    public init(id: Int, name: String, content: String) {
+    public init(id: Int, name: String, content: String, chapterCount: Int) {
         self.id = id
         self.name = name
         self.content = content
+        self.chapterCount = chapterCount
     }
 } 
