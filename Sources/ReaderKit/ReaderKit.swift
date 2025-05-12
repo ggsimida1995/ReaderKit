@@ -105,19 +105,25 @@ class ReaderConfig {
 
 /// 章节内容模型
 public struct ChapterContent: Codable {
-    /// 章节ID
-    public let id: Int
-    /// 章节标题
-    public let name: String
-    /// 章节内容
-    public let content: String
-    /// 总章节数
+    public var id: Int
+    public var index: Int
+    public var siteIdent: String
+    public var chapterName: String?
+    public var url: String?
+    public var contents: [String]
+    public var playUrl: String
+    public var type: Int
     public let chapterCount: Int
     /// 初始化
-    public init(id: Int, name: String, content: String, chapterCount: Int) {
+    public init(id: Int, index: Int, siteIdent: String, chapterName: String?, url: String?, contents: [String], playUrl: String, type: Int, chapterCount: Int) {
         self.id = id
-        self.name = name
-        self.content = content
+        self.index = index
+        self.siteIdent = siteIdent
+        self.chapterName = chapterName
+        self.url = url
+        self.contents = contents
+        self.playUrl = playUrl
+        self.type = type
         self.chapterCount = chapterCount
     }
 } 
