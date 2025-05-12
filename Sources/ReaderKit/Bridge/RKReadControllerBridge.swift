@@ -37,15 +37,37 @@ struct RKReadControllerRepresentable: UIViewControllerRepresentable {
     // 书籍ID
     var bookID: String
     
-    // 阅读模型，必须提供
+    // 阅读模型
     var readModel: RKReadModel
     
     /// 初始化方法
     /// - Parameters:
     ///   - bookID: 书籍ID
-    ///   - readModel: 阅读模型（必须提供）
+    ///   - readModel: 阅读模型
     init(bookID: String, readModel: RKReadModel) {
         self.bookID = bookID
+        self.readModel = readModel
+    }
+    
+    /// 初始化方法（根据基本参数创建阅读模型）
+    /// - Parameters:
+    ///   - bookID: 书籍ID
+    ///   - bookName: 书籍名称
+    ///   - chapterCount: 章节数量
+    init(bookID: String, bookName: String, chapterCount: Int) {
+        self.bookID = bookID
+        
+        // 内部创建阅读模型
+        let readModel = RKReadModel()
+        readModel.bookID = bookID
+        readModel.bookName = bookName
+        readModel.chapterCount = chapterCount
+        
+        // 创建阅读记录
+        let recordModel = RKReadRecordModel()
+        recordModel.bookID = bookID
+        readModel.recordModel = recordModel
+        
         self.readModel = readModel
     }
     

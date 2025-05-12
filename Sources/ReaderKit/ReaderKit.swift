@@ -10,20 +10,20 @@ import UIKit
 /// - 主题定制
 /// - 布局管理
 /// - 阅读状态追踪
-struct ReaderKit {
+public struct ReaderKit {
     /// 库的版本号
-    static let version = "1.0.0"
+    public static let version = "1.0.0"
     
     /// ReaderKit配置选项
-    struct Configuration {
+    public struct Configuration {
         /// 是否显示调试日志
-        var isDebugMode: Bool
+        public var isDebugMode: Bool
         /// 默认字体大小
-        var defaultFontSize: CGFloat
+        public var defaultFontSize: CGFloat
         /// 默认主题
-        var defaultTheme: ReaderTheme
+        public var defaultTheme: ReaderTheme
         
-        init(
+        public init(
             isDebugMode: Bool = false,
             defaultFontSize: CGFloat = 16,
             defaultTheme: ReaderTheme = .light
@@ -36,53 +36,31 @@ struct ReaderKit {
     
     /// 初始化ReaderKit
     /// - Parameter configuration: ReaderKit配置选项
-    static func initialize(with configuration: Configuration = Configuration()) {
+    public static func initialize(with configuration: Configuration = Configuration()) {
         ReaderConfig.shared.configure(with: configuration)
         if configuration.isDebugMode {
             print("ReaderKit \(version) 已初始化")
         }
     }
     
-    /// 获取阅读器视图（使用自定义的阅读模型）
-    /// - Parameter readModel: 自定义的阅读模型
-    /// - Returns: 返回配置好的阅读器视图
-    static func readerView(with readModel: RKReadModel) -> some View {
-        RKReadControllerRepresentable(bookID: readModel.bookID, readModel: readModel)
-    }
-    
-    /// 创建一个基本的阅读模型框架（第三方需要自行完善其内容）
+    /// 获取阅读器视图
     /// - Parameters:
     ///   - bookID: 书籍ID
     ///   - bookName: 书籍名称
-    ///   - chapterListModels: 章节列表模型数组
-    /// - Returns: 返回基础的RKReadModel
-    static func createReadModel(
+    ///   - chapterCount: 章节总数
+    /// - Returns: 返回配置好的阅读器视图
+    public static func readerView(
         bookID: String,
         bookName: String,
-        chapterListModels: [RKReadChapterListModel]
-    ) -> RKReadModel {
-        let readModel = RKReadModel()
-        readModel.bookID = bookID
-        readModel.bookName = bookName
-        readModel.bookSourceType = .network
-        readModel.chapterListModels = chapterListModels
-        readModel.chapterCount = chapterListModels.count
-        
-        // 创建阅读记录
-        let recordModel = RKReadRecordModel()
-        recordModel.bookID = bookID
-        
-        // 注意：这里不再调用DefaultChapterContentService
-        // 第三方使用时需要设置recordModel.chapterModel
-        
-        readModel.recordModel = recordModel
-        
-        return readModel
+        chapterCount: Int
+    ) -> some View {
+        // 直接使用RKReadControllerRepresentable的新初始化方法
+        return RKReadControllerRepresentable(bookID: bookID, bookName: bookName, chapterCount: chapterCount)
     }
 }
 
 /// 阅读器主题
-enum ReaderTheme {
+public enum ReaderTheme {
     case light
     case dark
     case sepia
@@ -120,16 +98,16 @@ class ReaderConfig {
 }
 
 /// 章节内容模型
-struct ChapterContent: Codable {
+public struct ChapterContent: Codable {
     /// 章节ID
-    let id: Int
+    public let id: Int
     /// 章节标题
-    let name: String
+    public let name: String
     /// 章节内容
-    let content: String
+    public let content: String
     
     /// 初始化
-    init(id: Int, name: String, content: String) {
+    public init(id: Int, name: String, content: String) {
         self.id = id
         self.name = name
         self.content = content
