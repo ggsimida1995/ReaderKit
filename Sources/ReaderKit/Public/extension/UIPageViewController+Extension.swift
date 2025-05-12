@@ -1,11 +1,3 @@
-//
-//  UIPageViewController+Extension.swift
-//  DZMeBookRead
-//
-//  Created by dengzemiao on 2019/4/30.
-//  Copyright © 2019年 DZM. All rights reserved.
-//
-
 private var IsGestureRecognizerEnabled = "IsGestureRecognizerEnabled"
 private var TapIsGestureRecognizerEnabled = "TapIsGestureRecognizerEnabled"
 

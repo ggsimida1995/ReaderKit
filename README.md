@@ -143,4 +143,46 @@ ReaderKit 提供多种方式进行自定义，包括主题、布局和交互方�
 
 ## 许可证
 
-此项目使用 MIT 许可证 - 详情请查看 LICENSE 文件。 
+此项目使用 MIT 许可证 - 详情请查看 LICENSE 文件。
+
+# 章节内容服务说明
+
+## DefaultChapterContentService
+
+### 功能
+提供标准的章节内容获取服务，支持通过书籍ID和章节ID获取完整的章节模型，自动处理内容排版、分页、章节名、前后章节ID等所有关键参数，保证翻页和阅读体验流畅。
+
+### 方法说明
+
+#### getChapter(bookID: String, chapterID: Int) -> ReadChapterModel?
+- **参数**：
+  - `bookID`：书籍唯一标识符（字符串）
+  - `chapterID`：章节编号（从1开始，Int类型）
+- **返回值**：
+  - 返回完整的 `ReadChapterModel` 实例，包含所有章节元数据、内容、分页信息等。
+  - 如果参数无效或章节不存在，返回 `nil`。
+
+- **行为细节**：
+  1. 查询数据库或模拟数据源，获取章节原始内容和章节名。
+  2. 自动设置章节名、内容、是否为空、优先级、上一章ID、下一章ID。
+  3. 内容自动排版，适配阅读器显示需求。
+  4. 自动刷新分页和字体，保证内容显示正确。
+  5. 自动保存章节模型，便于后续快速读取。
+
+### 使用示例
+```swift
+if let chapter = DefaultChapterContentService.shared.getChapter(bookID: "1001", chapterID: 2) {
+    // 章节内容已完整设置，可直接用于阅读器显示和翻页
+    print(chapter.name)
+    print(chapter.content)
+    print("上一章ID: \(chapter.previousChapterID) 下一章ID: \(chapter.nextChapterID)")
+}
+```
+
+### 扩展说明
+- 如需对接真实数据库，只需将 `getChapter` 方法中的 Mock 数据替换为数据库查询逻辑，并保证所有参数设置完整。
+- 所有章节模型参数请参考 `ReadChapterModel` 的定义。
+
+---
+
+如有疑问或需进一步扩展，请联系开发者或查阅 Apple 官方 [iOS开发文档](https://developer.apple.com/documentation/)。 

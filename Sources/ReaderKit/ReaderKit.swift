@@ -23,7 +23,7 @@ public struct ReaderKit {
     /// 获取主阅读器视图
     /// - Returns: 返回配置好的阅读器视图
     public static func readerView() -> some View {
-        BookshelfView()
+        ReaderMainView()
     }
     
 }
