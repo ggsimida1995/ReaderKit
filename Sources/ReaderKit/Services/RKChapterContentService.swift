@@ -30,12 +30,12 @@ class DefaultChapterContentService: ChapterContentService {
             // 设置基本信息
             chapterModel.bookID = bookID
             chapterModel.id = chapterID
-            chapterModel.name = content.name
+            chapterModel.name = content.chapterName ?? ""
             
             // 章节内容排版处理
-            if content.content.count > 0 {
+            if content.contents.count > 0 {
                 // 章节类容需要进行排版一篇
-                chapterModel.content = RKReadParser.contentTypesetting(content: content.content)
+                chapterModel.content = RKReadParser.contentTypesetting(content: content.contents)
             } else {
                 chapterModel.isContentEmpty = true
                 chapterModel.content = RKReadParser.contentTypesetting(content: "正在加载中。。。")
