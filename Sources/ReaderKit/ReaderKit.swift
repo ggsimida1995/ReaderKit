@@ -56,12 +56,10 @@ public struct ReaderKit {
     ///   - chapterCount: 章节总数
     /// - Returns: 返回配置好的阅读器视图
     public static func readerView(
-        bookID: String,
-        bookName: String,
-        chapterCount: Int
+        book: RKBook
     ) -> some View {
         // 直接使用RKReadControllerRepresentable的新初始化方法
-        return RKReadControllerRepresentable(bookID: bookID, bookName: bookName, chapterCount: chapterCount)
+        return RKReadControllerRepresentable(book: book)
     }
 }
 
