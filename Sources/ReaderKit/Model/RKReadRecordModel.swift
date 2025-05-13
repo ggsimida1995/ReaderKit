@@ -9,7 +9,7 @@ class RKReadRecordModel: NSObject, NSCoding {
     var bookID: String = ""
     
     /// 当前记录的阅读章节
-    var chapterModel: RKReadChapterModel!
+    var chapterModel: RKReadChapterModel?
     
     /// 阅读到的页码(上传阅读记录到服务器时传当前页面的 location 上去,从服务器拿回来 location 在转成页码。精准回到上次阅读位置)
     var page: Int = 0
@@ -17,43 +17,76 @@ class RKReadRecordModel: NSObject, NSCoding {
     // MARK: 快捷获取
     
     /// 当前记录分页模型
-    var pageModel: RKReadPageModel { chapterModel.pageModels[page] }
+    var pageModel: RKReadPageModel { 
+        guard let chapter = chapterModel, chapter.pageModels.count > page else {
+            // 返回一个空的页面模型作为默认值
+            return RKReadPageModel()
+        }
+        return chapter.pageModels[page] 
+    }
     
     /// 当前记录起始坐标
-    var locationFirst: Int { chapterModel.locationFirst(page: page) }
+    var locationFirst: Int { 
+        guard let chapter = chapterModel else { return 0 }
+        return chapter.locationFirst(page: page) 
+    }
     
     /// 当前记录末尾坐标
-    var locationLast: Int { chapterModel.locationLast(page: page) }
+    var locationLast: Int { 
+        guard let chapter = chapterModel else { return 0 }
+        return chapter.locationLast(page: page) 
+    }
     
     /// 当前记录是否为第一个章节
-    var isFirstChapter: Bool { chapterModel.isFirstChapter }
+    var isFirstChapter: Bool { 
+        guard let chapter = chapterModel else { return true }
+        return chapter.isFirstChapter 
+    }
     
     /// 当前记录是否为最后一个章节
-    var isLastChapter: Bool { chapterModel.isLastChapter }
+    var isLastChapter: Bool { 
+        guard let chapter = chapterModel else { return true }
+        return chapter.isLastChapter 
+    }
     
     /// 当前记录是否为第一页
     var isFirstPage: Bool { page == 0 }
     
     /// 当前记录是否为最后一页
-    var isLastPage: Bool { page == (chapterModel.pageCount - 1) }
+    var isLastPage: Bool { 
+        guard let chapter = chapterModel else { return true }
+        return page == (chapter.pageCount - 1) 
+    }
     
     /// 当前记录页码字符串
-    var contentString: String { chapterModel.contentString(page: page) }
+    var contentString: String { 
+        guard let chapter = chapterModel else { return "" }
+        return chapter.contentString(page: page) 
+    }
     
     /// 当前记录页码富文本
-    var contentAttributedString: NSAttributedString { chapterModel.contentAttributedString(page: page) }
+    var contentAttributedString: NSAttributedString { 
+        guard let chapter = chapterModel else { return NSAttributedString() }
+        return chapter.contentAttributedString(page: page) 
+    }
     
     /// 当前记录切到上一页
     func previousPage() { page = max(page - 1, 0) }
     
     /// 当前记录切到下一页
-    func nextPage() { page = min(page + 1, chapterModel.pageCount - 1) }
+    func nextPage() { 
+        guard let chapter = chapterModel else { return }
+        page = min(page + 1, chapter.pageCount - 1) 
+    }
     
     /// 当前记录切到第一页
     func firstPage() { page = 0 }
     
     /// 当前记录切到最后一页
-    func lastPage() { page = chapterModel.pageCount - 1 }
+    func lastPage() { 
+        guard let chapter = chapterModel else { return }
+        page = chapter.pageCount - 1 
+    }
     
     // MARK: 辅助
     
@@ -68,7 +101,7 @@ class RKReadRecordModel: NSObject, NSCoding {
     func modify(chapterID: Int, location: Int, isSave: Bool = true) {
         if RKReadChapterModel.isExist(bookID: bookID, chapterID: chapterID) {
             chapterModel = RKReadChapterModel.model(bookID: bookID, chapterID: chapterID)
-            page = chapterModel.page(location: location)
+            page = chapterModel?.page(location: location) ?? 0
             if isSave { save() }
         }
     }
@@ -88,9 +121,9 @@ class RKReadRecordModel: NSObject, NSCoding {
     
     /// 更新字体
     func updateFont(isSave: Bool = true) {
-        if chapterModel != nil {
-            chapterModel.updateFont()
-            page = chapterModel.page(location: RK_READ_RECORD_CURRENT_CHAPTER_LOCATION)
+        if let chapter = chapterModel {
+            chapter.updateFont()
+            page = chapter.page(location: RK_READ_RECORD_CURRENT_CHAPTER_LOCATION)
             if isSave { save() }
         }
     }
@@ -122,7 +155,9 @@ class RKReadRecordModel: NSObject, NSCoding {
         
         if RKReadRecordModel.isExist(bookID) {
             recordModel = RKKeyedArchiver.unarchiver(folderName: bookID, fileName: DZM_READ_KEY_RECORD) as? RKReadRecordModel
-            recordModel.chapterModel.updateFont()
+            if let model = recordModel, let chapter = model.chapterModel {
+                chapter.updateFont()
+            }
         } else {
             recordModel = RKReadRecordModel()
             recordModel.bookID = bookID
