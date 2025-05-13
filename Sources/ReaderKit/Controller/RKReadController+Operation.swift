@@ -320,7 +320,7 @@ extension RKReadController {
             
             readModel.recordModel.save()
             
-            RK_READ_RECORD_CURRENT_CHAPTER_LOCATION = recordModel.locationFirst
+            RK_READ_RECORD_CURRENT_CHAPTER_LOCATION = recordModel.locationFirst ?? 0
         }
     }
 }
