@@ -345,20 +345,25 @@ func DZM_READ_TOTAL_PROGRESS(readModel: RKReadModel, recordModel: RKReadRecordMo
         // 获得当前阅读进度
         progress = 1.0
     } else {
+        guard let chapterModel = recordModel.chapterModel,
+              let locationFirst = recordModel.locationFirst else {
+            return 0.0
+        }
+        
         // 当前章节在所有章节列表中的位置
-        let chapterIndex: Float = Float(recordModel.chapterModel.id)
+        let chapterIndex: Float = Float(chapterModel.id)
         
         // 章节总数量
         let chapterCount: Float = Float(readModel.chapterCount)
         
         // 阅读记录首位置
-        let locationFirst: Float = Float(recordModel.locationFirst)
+        let locationFirstFloat: Float = Float(locationFirst)
         
         // 阅读记录内容长度
-        let fullContentLength: Float = Float(recordModel.chapterModel.fullContent.length)
+        let fullContentLength: Float = Float(chapterModel.fullContent.length)
         
         // 获得当前阅读进度
-        progress = (chapterIndex / chapterCount + locationFirst / fullContentLength / chapterCount)
+        progress = (chapterIndex / chapterCount + locationFirstFloat / fullContentLength / chapterCount)
     }
     
     // 返回

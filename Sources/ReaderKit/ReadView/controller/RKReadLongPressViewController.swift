@@ -9,7 +9,7 @@ class RKReadLongPressViewController: RKReadViewController {
     override func initReadView() {
         
         // 是否为书籍首页
-        if recordModel.pageModel.isHomePage {
+        if recordModel.pageModel!.isHomePage {
             
             super.initReadView()
             
@@ -24,7 +24,7 @@ class RKReadLongPressViewController: RKReadViewController {
             readView = RKReadLongPressView()
             readView.pageModel = pageModel
             view.addSubview(readView)
-            readView.frame = CGRect(x: rect.minX, y: rect.minY, width: rect.width, height: pageModel.contentSize.height)
+            readView.frame = CGRect(x: rect.minX, y: rect.minY, width: rect.width, height: pageModel!.contentSize.height)
         }
     }
     
@@ -58,7 +58,7 @@ class RKReadLongPressViewController: RKReadViewController {
     private func drag(touches: Set<UITouch>, status: PanGesStatus) {
         
         // 是否为书籍首页
-        if recordModel.pageModel.isHomePage { return }
+        if recordModel.pageModel!.isHomePage { return }
         
         if readView?.isOpenDrag ?? false {
             

@@ -5,21 +5,22 @@ extension RKReadModel {
     /// 添加书签,默认使用当前阅读记录!
     func insetMark(recordModel: RKReadRecordModel? = nil) {
         guard let recordModel = recordModel ?? self.recordModel else { return }
+        guard let chapterModel = recordModel.chapterModel else { return }
         
         let markModel = RKReadMarkModel()
         markModel.bookID = recordModel.bookID
-        markModel.chapterID = recordModel.chapterModel.id
+        markModel.chapterID = chapterModel.id
         
-        if recordModel.pageModel.isHomePage {
+        if ((recordModel.pageModel?.isHomePage) != nil) {
             markModel.name = "(无章节名)"
             markModel.content = bookName
         } else {
-            markModel.name = recordModel.chapterModel.name
-            markModel.content = recordModel.contentString.removeSEHeadAndTail.removeEnterAll
+            markModel.name = chapterModel.name
+            markModel.content = recordModel.contentString?.removeSEHeadAndTail.removeEnterAll ?? ""
         }
         
         markModel.time = Timer1970()
-        markModel.location = recordModel.locationFirst
+        markModel.location = recordModel.locationFirst ?? 0
         
         if markModels.isEmpty {
             markModels.append(markModel)
@@ -52,15 +53,15 @@ extension RKReadModel {
     /// 是否存在书签
     func isExistMark(recordModel: RKReadRecordModel? = nil) -> RKReadMarkModel? {
         guard let recordModel = recordModel ?? self.recordModel,
-              !markModels.isEmpty else {
+              !markModels.isEmpty,
+              let chapterModel = recordModel.chapterModel,
+              let locationFirst = recordModel.locationFirst,
+              let locationLast = recordModel.locationLast else {
             return nil
         }
         
-        let locationFirst = recordModel.locationFirst
-        let locationLast = recordModel.locationLast
-        
         return markModels.first { markModel in
-            markModel.chapterID == recordModel.chapterModel.id &&
+            markModel.chapterID == chapterModel.id &&
             markModel.location >= locationFirst &&
             markModel.location < locationLast
         }
