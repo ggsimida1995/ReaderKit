@@ -64,7 +64,7 @@ struct RKReadControllerRepresentable: UIViewControllerRepresentable {
             
             // 检查马上要阅读章节是否本地存在
             if RKReadChapterModel.isExist(bookID: bookID, chapterID: chapterID) { // 存在
-                
+                print("进来 1存在")
                 // 如果存在则修改阅读记录
                 readModel.recordModel.modify(chapterID: chapterID, location: 0)
                 
@@ -75,6 +75,8 @@ struct RKReadControllerRepresentable: UIViewControllerRepresentable {
                 
             }else{ // 如果不存在则需要加载网络数据
                 
+                print("进来 2不存在")
+
                 vc.fetchChapterContent(bookID: bookID, chapterID: chapterID)
                 // 如果存在则修改阅读记录
                 readModel.recordModel.modify(chapterID: chapterID, location: 0)
