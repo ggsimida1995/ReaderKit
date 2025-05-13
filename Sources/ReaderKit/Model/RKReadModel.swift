@@ -50,14 +50,14 @@ class RKReadModel: NSObject, NSCoding {
     /// 获取阅读对象,如果则创建对象返回
     @objc class func model(bookID: String) -> RKReadModel {
         var readModel: RKReadModel!
-        
+         print("bookID1: \(bookID)")
         if RKReadModel.isExist(bookID: bookID) {
             readModel = RKKeyedArchiver.unarchiver(folderName: bookID, fileName: DZM_READ_KEY_OBJECT) as? RKReadModel
         } else {
             readModel = RKReadModel()
             readModel.bookID = bookID
         }
-        
+         print("bookID2: \(bookID)")
         // 获取阅读记录
         readModel.recordModel = RKReadRecordModel.model(bookID: bookID)
         

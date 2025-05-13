@@ -48,7 +48,9 @@ struct RKReadControllerRepresentable: UIViewControllerRepresentable {
         let vc = RKReadController()
         
         let bookID = String(rkBook.bkId)
+        print("bookID: \(bookID)")
         let readModel = RKReadModel.model(bookID: bookID)
+        print("readModel: \(readModel.bookName) \(readModel.chapterCount)")
         readModel.bookName = rkBook.bookName
         readModel.chapterCount = rkBook.chapterCount
         // 记录章节列表
