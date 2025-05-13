@@ -5,7 +5,7 @@ import UIKit
 /// 翻页控制器协议
 protocol PageTurnController: UIViewController {
     // MARK: - Properties
-   
+    
     // MARK: - Initialization
     init()
 }
@@ -44,72 +44,56 @@ struct RKReadControllerRepresentable: UIViewControllerRepresentable {
     }
     
     func makeUIViewController(context: Context) -> RKReadController {
-          let vc = RKReadController()
-       if let book = rkBook {
-           let bookID = String(book.bkId)
-           let readModel = RKReadModel.model(bookID: bookID)
-           readModel.bookName = book.bookName
-           readModel.chapterCount = book.chapterCount
-            // 记录章节列表
-           readModel.chapterListModels = readerManager.chapterListModels
-           // controller.readModel.bookName = book.bookName
-           let chapterID = book.position
-           // 检查是否当前将要阅读的章节是否等于阅读记录
-           if chapterID != readModel.recordModel.chapterModel?.id {
-               print("进来 1 不等于阅读记录")
-               // 如果不一致则需要检查本地是否有没有,没有则下载,并修改阅读记录为该章节。
-               
-               // 检查马上要阅读章节是否本地存在
-               if RKReadChapterModel.isExist(bookID: bookID, chapterID: chapterID) { // 存在
-                   
-                   // 如果存在则修改阅读记录
-                   readModel.recordModel.modify(chapterID: chapterID, location: 0)
-                   
-                   //                    let vc  = DZMReadController()
-                   
-                   vc.readModel = readModel
-                   
-                   
-               }else{ // 如果不存在则需要加载网络数据
-
-                   vc.fetchChapterContent(bookID: bookID, chapterID: chapterID)
-                   // 如果存在则修改阅读记录
-                   readModel.recordModel.modify(chapterID: chapterID, location: 0)
-                   
-                   //                    let vc  = DZMReadController()
-                   
-                   vc.readModel = readModel
-                   
-               }
-           }else{
-                print("进来 2 等于阅读记录")
-               //  readModel.recordModel.modify(chapterID: chapterID, location: 0)
-
-               vc.readModel = readModel
-           }
-       }
-       return vc
-     
-      
+        let vc = RKReadController()
+        
+        let bookID = String(rkBook.bkId)
+        let readModel = RKReadModel.model(bookID: bookID)
+        readModel.bookName = rkBook.bookName
+        readModel.chapterCount = rkBook.chapterCount
+        // 记录章节列表
+//        readModel.chapterListModels = readerManager.chapterListModels
+        // controller.readModel.bookName = book.bookName
+        let chapterID = rkBook.position
+        // 检查是否当前将要阅读的章节是否等于阅读记录
+        if chapterID != readModel.recordModel.chapterModel?.id {
+            print("进来 1 不等于阅读记录")
+            // 如果不一致则需要检查本地是否有没有,没有则下载,并修改阅读记录为该章节。
+            
+            // 检查马上要阅读章节是否本地存在
+            if RKReadChapterModel.isExist(bookID: bookID, chapterID: chapterID) { // 存在
+                
+                // 如果存在则修改阅读记录
+                readModel.recordModel.modify(chapterID: chapterID, location: 0)
+                
+                //                    let vc  = DZMReadController()
+                
+                vc.readModel = readModel
+                
+                
+            }else{ // 如果不存在则需要加载网络数据
+                
+                vc.fetchChapterContent(bookID: bookID, chapterID: chapterID)
+                // 如果存在则修改阅读记录
+                readModel.recordModel.modify(chapterID: chapterID, location: 0)
+                
+                //                    let vc  = DZMReadController()
+                
+                vc.readModel = readModel
+                
+            }
+        }else{
+            print("进来 2 等于阅读记录")
+            //  readModel.recordModel.modify(chapterID: chapterID, location: 0)
+            
+            vc.readModel = readModel
+        }
+        return vc
+        
+        
     }
     
     func updateUIViewController(_ uiViewController: RKReadController, context: Context) {
         // 当readModel发生变化时更新控制器
-        if readModel.bookID != uiViewController.readModel.bookID {
-            uiViewController.readModel = readModel
-            
-            // 获取章节ID
-            let chapterID = readModel.recordModel.chapterID
-            
-            // 检查章节是否存在
-            if RKReadChapterModel.isExist(bookID: readModel.bookID, chapterID: chapterID) {
-                // 如果存在则修改阅读记录
-                readModel.recordModel.modify(chapterID: chapterID, location: 0)
-            } else {
-                // 如果不存在则需要加载网络数据
-                uiViewController.fetchChapterContent(bookID: readModel.bookID, chapterID: chapterID)
-            }
-        }
     }
     
     // 添加析构方法，确保旧控制器被清理
@@ -118,4 +102,4 @@ struct RKReadControllerRepresentable: UIViewControllerRepresentable {
         uiViewController.removeFromParent()
     }
 }
-#endif 
+#endif
