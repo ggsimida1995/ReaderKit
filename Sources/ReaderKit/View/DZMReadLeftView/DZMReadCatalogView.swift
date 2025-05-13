@@ -111,7 +111,7 @@ class DZMReadCatalogView: UIView,UITableViewDelegate,UITableViewDataSource {
         // 阅读记录
         if readModel.recordModel.chapterModel.id == chapterListModel.id {
             
-            cell.chapterName.textColor = UIColor(hexString: ReaderThemeManager.shared.readFont)
+            cell.chapterName.textColor = UIColor.black
             
         }else{ cell.chapterName.textColor = DZM_COLOR_145_145_145 }
         

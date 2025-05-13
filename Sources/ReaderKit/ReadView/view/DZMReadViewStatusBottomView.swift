@@ -36,20 +36,20 @@ class DZMReadViewStatusBottomView: UIView {
         
         // 电池
         batteryView = DZMBatteryView()
-        batteryView.tintColor = UIColor(hexString: ReaderThemeManager.shared.readFont)
+        batteryView.tintColor = UIColor.black
         addSubview(batteryView)
         
         // 时间
         timeLabel = UILabel()
         timeLabel.textAlignment = .center
         timeLabel.font = DZM_FONT_SA_10
-        timeLabel.textColor = UIColor(hexString: ReaderThemeManager.shared.readFont)
+        timeLabel.textColor = UIColor.black
         addSubview(timeLabel)
         
         // 进度
         progress = UILabel()
         progress.font = DZM_FONT_SA_10
-        progress.textColor = UIColor(hexString: ReaderThemeManager.shared.readFont)
+        progress.textColor = UIColor.black
         addSubview(progress)
         
         // 初始化调用

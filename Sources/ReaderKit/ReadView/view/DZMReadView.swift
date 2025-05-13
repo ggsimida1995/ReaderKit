@@ -44,19 +44,19 @@ class DZMReadView: UIView {
         //        backgroundColor = DZM_COLOR_ARC
     }
     
-    private func addDashedLine() {
-        let shapeLayer = CAShapeLayer()
-        shapeLayer.strokeColor = UIColor(hexString: ReaderThemeManager.shared.menuFont)?.cgColor
-        shapeLayer.lineWidth = 2
-        shapeLayer.lineDashPattern = [4, 4] // 虚线的样式：4个点的线，4个点的间隔
-        shapeLayer.fillColor = nil
+    // private func addDashedLine() {
+    //     let shapeLayer = CAShapeLayer()
+    //     shapeLayer.strokeColor = UIColor(hexString: ReaderThemeManager.shared.menuFont)?.cgColor
+    //     shapeLayer.lineWidth = 2
+    //     shapeLayer.lineDashPattern = [4, 4] // 虚线的样式：4个点的线，4个点的间隔
+    //     shapeLayer.fillColor = nil
         
-        // 设置虚线框的路径
-        let path = UIBezierPath(rect: CGRect(origin: CGPoint.zero, size: DZM_READ_VIEW_RECT.size)) // 沿着视图边界绘制矩形
-        shapeLayer.path = path.cgPath
+    //     // 设置虚线框的路径
+    //     let path = UIBezierPath(rect: CGRect(origin: CGPoint.zero, size: DZM_READ_VIEW_RECT.size)) // 沿着视图边界绘制矩形
+    //     shapeLayer.path = path.cgPath
         
-        layer.addSublayer(shapeLayer)
-    }
+    //     layer.addSublayer(shapeLayer)
+    // }
     override func layoutSubviews() {
         super.layoutSubviews()
         
@@ -65,9 +65,9 @@ class DZMReadView: UIView {
         
         // 重新添加虚线
         // 根据设置决定是否添加虚线
-        if ReaderStateManager.shared.showHeaderFooterDashLine && ReaderLayoutManager.shared.effectType != .scroll {
-            addDashedLine()
-        }
+        // if ReaderStateManager.shared.showHeaderFooterDashLine && ReaderLayoutManager.shared.effectType != .scroll {
+        //     addDashedLine()
+        // }
         
     }
     /// 绘制

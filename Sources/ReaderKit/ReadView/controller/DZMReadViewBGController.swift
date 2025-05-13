@@ -26,7 +26,7 @@ class DZMReadViewBGController: DZMViewController {
         // imageView
         imageView = UIImageView()
         // imageView.backgroundColor = DZMReadConfigure.shared().bgColor
-        imageView.backgroundColor = UIColor(hexString: ReaderThemeManager.shared.readBG)
+        imageView.backgroundColor = UIColor.white
         view.addSubview(imageView)
         imageView.frame = view.bounds
         
