@@ -41,6 +41,7 @@ struct RKReadControllerRepresentable: UIViewControllerRepresentable {
     /// - Parameter book: 书籍模型
     init(book: RKBook) {
         self.rkBook = book
+        print("rkBook: \(rkBook.bkId) \(rkBook.bookName) \(rkBook.chapterCount) \(rkBook.position)")
     }
     
     func makeUIViewController(context: Context) -> RKReadController {
