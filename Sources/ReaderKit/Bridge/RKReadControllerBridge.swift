@@ -43,6 +43,11 @@ struct RKReadControllerRepresentable: UIViewControllerRepresentable {
     init(book: RKBook) {
         self.rkBook = book
         print("rkBook: \(rkBook.bkId) \(rkBook.bookName) \(rkBook.chapterCount) \(rkBook.position)")
+        
+        // 检查是否设置了ChapterProvider，如果没有，输出警告
+        if DefaultChapterContentService.externalProvider == nil {
+            print("警告: 在创建阅读器视图前必须设置ChapterProvider！请先调用ReaderKit.setChapterProvider(_:)")
+        }
     }
     
     func makeUIViewController(context: Context) -> DZMReadController {

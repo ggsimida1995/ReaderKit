@@ -153,16 +153,37 @@ class DZMReadRecordModel: NSObject,NSCoding {
         var recordModel:DZMReadRecordModel!
         
         if DZMReadRecordModel.isExist(bookID) {
-            
+            print("进来 1")
             recordModel = DZMKeyedArchiver.unarchiver(folderName: bookID, fileName: DZM_READ_KEY_RECORD) as? DZMReadRecordModel
             
             recordModel.chapterModel.updateFont()
             
         }else{
-            
+            print("进来 2")
             recordModel = DZMReadRecordModel()
             
             recordModel.bookID = bookID
+            
+            // 初始化第一章作为默认章节，防止空值解包崩溃
+            if let firstChapterModel = DZMReadChapterModel.model(bookID: bookID, chapterID: NSNumber(value: 0)) {
+                recordModel.chapterModel = firstChapterModel
+                recordModel.page = NSNumber(value: 0)
+            } else {
+                print("警告：无法获取第一章内容，需要先设置ChapterProvider!")
+                // 创建一个空的章节模型，避免崩溃
+                let emptyChapter = DZMReadChapterModel()
+                emptyChapter.bookID = bookID
+                emptyChapter.id = NSNumber(value: 0)
+                emptyChapter.name = "加载中..."
+                emptyChapter.content = "正在加载内容，请稍候..."
+                emptyChapter.pageCount = NSNumber(value: 1)
+                emptyChapter.previousChapterID = DZM_READ_NO_MORE_CHAPTER
+                emptyChapter.nextChapterID = NSNumber(value: 1)
+                emptyChapter.updateFont()
+                
+                recordModel.chapterModel = emptyChapter
+                recordModel.page = NSNumber(value: 0)
+            }
         }
         
         return recordModel
