@@ -44,8 +44,8 @@ class DZMReadLeftView: UIView,DZMSegmentedControlDelegate {
        segmentedControl.normalFont = DZM_FONT_SA_14
        segmentedControl.normalColor = DZM_COLOR_145_145_145
        segmentedControl.selectFont = DZM_FONT_SA_14
-       segmentedControl.selectColor = UIColor(hexString: ReaderThemeManager.shared.menuFont)!
-       segmentedControl.sliderColor = UIColor(hexString: ReaderThemeManager.shared.menuFont)!
+       segmentedControl.selectColor = UIColor.black
+       segmentedControl.sliderColor = UIColor.black
        segmentedControl.sliderWidth = DZM_SPACE_SA_30
        segmentedControl.sliderHeight = DZM_SPACE_SA_2
        addSubview(segmentedControl)

@@ -26,7 +26,7 @@ class DZMReadViewController: DZMViewController {
         // print("ReaderThemeManager.shared.imageShowMode  \(ReaderThemeManager.shared.imageShowMode)")
         // 设置阅读背景
         // 设置阅读背景
-        view.backgroundColor = UIColor(hexString: ReaderThemeManager.shared.readBG)
+        view.backgroundColor = UIColor.white
         if ReaderThemeManager.shared.imageShowMode == 1 {
             // 图片背景
             let fileName = ReaderThemeManager.shared.uuid.sha1

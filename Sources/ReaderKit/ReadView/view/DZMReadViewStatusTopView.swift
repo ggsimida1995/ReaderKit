@@ -31,14 +31,14 @@ class DZMReadViewStatusTopView: UIView {
         // 书名
         bookName = UILabel()
         bookName.font = DZM_FONT_SA_10
-        bookName.textColor = UIColor(hexString: ReaderThemeManager.shared.readFont)
+        bookName.textColor = UIColor.black
         bookName.textAlignment = .left
         addSubview(bookName)
         
         // 章节名
         chapterName = UILabel()
         chapterName.font = DZM_FONT_SA_10
-        chapterName.textColor = UIColor(hexString: ReaderThemeManager.shared.readFont)
+        chapterName.textColor = UIColor.black
         chapterName.textAlignment = .right
         addSubview(chapterName)
     }

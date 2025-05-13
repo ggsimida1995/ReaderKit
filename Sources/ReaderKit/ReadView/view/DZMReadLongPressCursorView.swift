@@ -17,7 +17,7 @@ class DZMReadLongPressCursorView: UIView {
     }
     
     /// 光标颜色
-    var color:UIColor = UIColor(hexString: ReaderThemeManager.shared.menuFont)! {
+    var color:UIColor = UIColor.black {
         
         didSet{ setNeedsDisplay() }
     }

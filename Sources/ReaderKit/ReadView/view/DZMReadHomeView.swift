@@ -34,7 +34,7 @@ class DZMReadHomeView: UIView {
         name = UILabel()
         name.textAlignment = .center
         name.font = DZM_FONT_BOLD_SA(50)
-        name.textColor = UIColor(hexString: ReaderThemeManager.shared.readFont)
+        name.textColor = UIColor.black
         addSubview(name)
     }
     

@@ -53,7 +53,7 @@ class ReadViewStatusTopView: UIView {
         progressLabel = createLabel()
         timeLabel = createLabel()
         batteryView = DZMBatteryView()
-        batteryView.tintColor = UIColor(hexString: ReaderThemeManager.shared.readFont)
+        batteryView.tintColor = UIColor.black
         batteryView.translatesAutoresizingMaskIntoConstraints = false
         
         pageLabel = createLabel()
@@ -157,7 +157,7 @@ class ReadViewStatusTopView: UIView {
         let label = UILabel()
         label.textAlignment = .center
         label.font = DZM_FONT_SA_10
-        label.textColor = UIColor(hexString: ReaderThemeManager.shared.readFont)
+        label.textColor = UIColor.black
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }
@@ -185,20 +185,20 @@ class ReadViewStatusTopView: UIView {
         ])
     }
     
-    private func addDashedLine() {
-        let shapeLayer = CAShapeLayer()
-        shapeLayer.strokeColor = UIColor(hexString: ReaderThemeManager.shared.menuFont)?.cgColor
-        shapeLayer.lineWidth = 2
-        shapeLayer.lineDashPattern = [4, 4] // 虚线的样式：4个点的线，4个点的间隔
-        shapeLayer.fillColor = nil
+    // private func addDashedLine() {
+    //     let shapeLayer = CAShapeLayer()
+    //     shapeLayer.strokeColor = UIColor(hexString: ReaderThemeManager.shared.menuFont)?.cgColor
+    //     shapeLayer.lineWidth = 2
+    //     shapeLayer.lineDashPattern = [4, 4] // 虚线的样式：4个点的线，4个点的间隔
+    //     shapeLayer.fillColor = nil
         
-        let path = CGMutablePath()
-        path.addLines(between: [CGPoint(x: 0, y: bounds.height),
-                              CGPoint(x: bounds.width, y: bounds.height)])
+    //     let path = CGMutablePath()
+    //     path.addLines(between: [CGPoint(x: 0, y: bounds.height),
+    //                           CGPoint(x: bounds.width, y: bounds.height)])
         
-        shapeLayer.path = path
-        layer.addSublayer(shapeLayer)
-    }
+    //     shapeLayer.path = path
+    //     layer.addSublayer(shapeLayer)
+    // }
     
     override func layoutSubviews() {
         super.layoutSubviews()
@@ -211,9 +211,9 @@ class ReadViewStatusTopView: UIView {
         }
         
         // 根据设置决定是否添加虚线
-        if ReaderStateManager.shared.showHeaderFooterDashLine {
-            addDashedLine()
-        }
+        // if ReaderStateManager.shared.showHeaderFooterDashLine {
+        //     addDashedLine()
+        // }
     }
     
     required init?(coder aDecoder: NSCoder) {

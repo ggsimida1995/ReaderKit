@@ -557,7 +557,7 @@ class DZMReadLongPressView: DZMReadView {
             
             let path = CGMutablePath()
             
-            UIColor(hexString: ReaderThemeManager.shared.readFont)!.withAlphaComponent(0.5).setFill()
+            UIColor.black.withAlphaComponent(0.5).setFill()
             
             path.addRects(rects)
             

@@ -59,7 +59,7 @@ class DZMReadPageModel: NSObject,NSCoding {
     /// 获取显示内容(考虑可能会变换字体颜色的情况)
     var showContent:NSAttributedString! {
         
-        let textColor = UIColor(hexString: ReaderThemeManager.shared.readFont)!
+        let textColor = UIColor.black
         let tempShowContent = NSMutableAttributedString(attributedString: content)
         tempShowContent.addAttributes([.foregroundColor : textColor], range: NSMakeRange(0, content.length))
         return tempShowContent
