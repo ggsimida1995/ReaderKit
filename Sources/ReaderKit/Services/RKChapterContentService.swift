@@ -8,7 +8,7 @@ protocol ChapterContentService {
     ///   - bookID: 书籍ID
     ///   - chapterID: 章节ID
     /// - Returns: 章节模型，如果获取失败则返回nil
-    func getChapter(bookID: String, chapterID: Int) -> RKReadChapterModel?
+    func getChapter(bookID: String, chapterID: Int) -> DZMReadChapterModel?
 }
 
 /// 公共章节提供者协议
@@ -32,14 +32,14 @@ class DefaultChapterContentService: ChapterContentService {
     
     private init() {}
     
-     func getChapter(bookID: String, chapterID: Int) -> RKReadChapterModel? {
+     func getChapter(bookID: String, chapterID: Int) -> DZMReadChapterModel? {
         // 如果有外部提供者，使用外部提供者获取内容
         if let provider = DefaultChapterContentService.externalProvider,
            let content = provider.getChapterContent(bookID: bookID, chapterID: chapterID) {
             // 创建章节模型
-            let chapterModel = RKReadChapterModel()
+            let chapterModel = DZMReadChapterModel()
             
-//            let chapterID = NSNumber(value: chapterID)
+            let chapterID = NSNumber(value: chapterID)
             // 设置基本信息
             chapterModel.bookID = bookID
             chapterModel.id = chapterID
@@ -48,26 +48,26 @@ class DefaultChapterContentService: ChapterContentService {
             // 章节内容排版处理
             if content.contents.count > 0 {
                 // 章节类容需要进行排版一篇
-                chapterModel.content = RKReadParser.contentTypesetting(content: content.contents.joined(separator: "\n"))
+                chapterModel.content = DZMReadParser.contentTypesetting(content: content.contents.joined(separator: "\n"))
             } else {
                 chapterModel.isContentEmpty = true
-                chapterModel.content = RKReadParser.contentTypesetting(content: "正在加载中。。。")
+                chapterModel.content = DZMReadParser.contentTypesetting(content: "正在加载中。。。")
             }
             // 优先级
             chapterModel.priority = chapterModel.id
             
             // 设置上下章节关系（默认值，可能需要外部提供者补充更多信息）
             if chapterID == 0 {
-                chapterModel.previousChapterID = 0
+                chapterModel.previousChapterID = DZM_READ_NO_MORE_CHAPTER
             } else {
-                chapterModel.previousChapterID = chapterID - 1
+                chapterModel.previousChapterID = NSNumber(value: chapterID as! Int - 1)
             }
             let chapterCount =  content.chapterCount - 1
             
-            if chapterID == chapterCount {
-                chapterModel.nextChapterID = -1
+            if chapterID == NSNumber(value: chapterCount) {
+                chapterModel.nextChapterID = DZM_READ_NO_MORE_CHAPTER
             } else {
-                chapterModel.nextChapterID = chapterID + 1
+                chapterModel.nextChapterID = NSNumber(value: chapterID as! Int + 1)
             }
             // 更新字体和分页
             chapterModel.updateFont()
@@ -86,7 +86,7 @@ class DefaultChapterContentService: ChapterContentService {
 }
 
 // MARK: - 扩展 ReadController 以使用新的服务
-extension RKReadController {
+extension DZMReadController {
     /// 使用新的服务获取章节内容
     @objc func fetchChapterContent(bookID: String, chapterID: Int) {
         print("请求章节: bookID=\(bookID), chapterID=\(chapterID)")
@@ -100,9 +100,9 @@ extension RKReadController {
 }
 
 // MARK: - 扩展 ReadViewScrollController 以使用新的服务
-extension RKReadViewScrollController {
+extension DZMReadViewScrollController {
     /// 使用新的服务获取章节内容
-    @objc func fetchChapterContent(bookID: String, chapterID: Int) -> RKReadChapterModel? {
+    @objc func fetchChapterContent(bookID: String, chapterID: Int) -> DZMReadChapterModel? {
         print("滚动控制器请求章节: bookID=\(bookID), chapterID=\(chapterID)")
         
         // 使用新的服务获取章节内容
