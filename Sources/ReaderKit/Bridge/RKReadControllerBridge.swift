@@ -32,7 +32,8 @@ struct PageTurnControllerRepresentable<Controller: PageTurnController>: UIViewCo
 
 /// RKReadController 包装器
 struct RKReadControllerRepresentable: UIViewControllerRepresentable {
-    typealias UIViewControllerType = RKReadController
+    
+    typealias UIViewControllerType = DZMReadController
     
     // 书籍模型
     var rkBook: RKBook
@@ -44,26 +45,26 @@ struct RKReadControllerRepresentable: UIViewControllerRepresentable {
         print("rkBook: \(rkBook.bkId) \(rkBook.bookName) \(rkBook.chapterCount) \(rkBook.position)")
     }
     
-    func makeUIViewController(context: Context) -> RKReadController {
-        let vc = RKReadController()
+    func makeUIViewController(context: Context) -> DZMReadController {
+        let vc = DZMReadController()
         
         let bookID = String(rkBook.bkId)
         print("bookID: \(bookID)")
-        let readModel = RKReadModel.model(bookID: bookID)
-        print("readModel: \(readModel.bookName) \(readModel.chapterCount)")
+        let readModel = DZMReadModel.model(bookID: bookID)
+  
         readModel.bookName = rkBook.bookName
-        readModel.chapterCount = rkBook.chapterCount
+        readModel.chapterCount = NSNumber(value: rkBook.chapterCount)
         // 记录章节列表
 //        readModel.chapterListModels = readerManager.chapterListModels
         // controller.readModel.bookName = book.bookName
-        let chapterID = rkBook.position
+        let chapterID = NSNumber(value: rkBook.position)
         // 检查是否当前将要阅读的章节是否等于阅读记录
         if chapterID != readModel.recordModel.chapterModel?.id {
             print("进来 1 不等于阅读记录")
             // 如果不一致则需要检查本地是否有没有,没有则下载,并修改阅读记录为该章节。
             
             // 检查马上要阅读章节是否本地存在
-            if RKReadChapterModel.isExist(bookID: bookID, chapterID: chapterID) { // 存在
+            if DZMReadChapterModel.isExist(bookID: bookID, chapterID: chapterID) { // 存在
                 print("进来 1存在")
                 // 如果存在则修改阅读记录
                 readModel.recordModel.modify(chapterID: chapterID, location: 0)
@@ -77,7 +78,7 @@ struct RKReadControllerRepresentable: UIViewControllerRepresentable {
                 
                 print("进来 2不存在")
 
-                vc.fetchChapterContent(bookID: bookID, chapterID: chapterID)
+                vc.fetchChapterContent(bookID: bookID, chapterID: Int(chapterID))
                 // 如果存在则修改阅读记录
                 readModel.recordModel.modify(chapterID: chapterID, location: 0)
                 
@@ -97,12 +98,12 @@ struct RKReadControllerRepresentable: UIViewControllerRepresentable {
         
     }
     
-    func updateUIViewController(_ uiViewController: RKReadController, context: Context) {
+    func updateUIViewController(_ uiViewController: DZMReadController, context: Context) {
         // 当readModel发生变化时更新控制器
     }
     
     // 添加析构方法，确保旧控制器被清理
-    static func dismantleUIViewController(_ uiViewController: RKReadController, coordinator: ()) {
+    static func dismantleUIViewController(_ uiViewController: DZMReadController, coordinator: ()) {
         uiViewController.view.removeFromSuperview()
         uiViewController.removeFromParent()
     }
