@@ -27,31 +27,31 @@ class DZMReadViewController: DZMViewController {
         // 设置阅读背景
         // 设置阅读背景
         view.backgroundColor = UIColor.white
-        if ReaderThemeManager.shared.imageShowMode == 1 {
-            // 图片背景
-            let fileName = ReaderThemeManager.shared.uuid.sha1
-            let filePath = DZMFileManager.shared.getImage(fileName: fileName, inFolder: "bookBG")
-            
-            if let imagePath = filePath {
-                let imageView = UIImageView(image: imagePath)
-                imageView.contentMode = .scaleAspectFill
-                imageView.clipsToBounds = true
-                
-                 // 设置透明度 (0.0 为完全透明，1.0 为完全不透明)
-                imageView.alpha = ReaderThemeManager.shared.imageAlpha // 示例值，可根据需求调整
-                // 将 imageView 添加到视图层次的最底层
-                view.insertSubview(imageView, at: 0)
-                
-                // 使用 Auto Layout 设置约束
-                imageView.translatesAutoresizingMaskIntoConstraints = false
-                NSLayoutConstraint.activate([
-                    imageView.topAnchor.constraint(equalTo: view.topAnchor),
-                    imageView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-                    imageView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-                    imageView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
-                ])
-            }
-        }
+//        if ReaderThemeManager.shared.imageShowMode == 1 {
+//            // 图片背景
+//            let fileName = ReaderThemeManager.shared.uuid.sha1
+//            let filePath = DZMFileManager.shared.getImage(fileName: fileName, inFolder: "bookBG")
+//            
+//            if let imagePath = filePath {
+//                let imageView = UIImageView(image: imagePath)
+//                imageView.contentMode = .scaleAspectFill
+//                imageView.clipsToBounds = true
+//                
+//                 // 设置透明度 (0.0 为完全透明，1.0 为完全不透明)
+//                imageView.alpha = ReaderThemeManager.shared.imageAlpha // 示例值，可根据需求调整
+//                // 将 imageView 添加到视图层次的最底层
+//                view.insertSubview(imageView, at: 0)
+//                
+//                // 使用 Auto Layout 设置约束
+//                imageView.translatesAutoresizingMaskIntoConstraints = false
+//                NSLayoutConstraint.activate([
+//                    imageView.topAnchor.constraint(equalTo: view.topAnchor),
+//                    imageView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+//                    imageView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+//                    imageView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
+//                ])
+//            }
+//        }
         
         // 刷新阅读进度
         reloadProgress()
