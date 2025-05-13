@@ -209,7 +209,7 @@ extension RKReadController {
         let bookID = recordModel.bookID
         
         // 章节ID
-        let chapterID = recordModel.chapterModel.previousChapterID
+        let chapterID = recordModel.chapterModel!.previousChapterID
         print("上一页 章节ID: \(chapterID)  \(recordModel.isFirstChapter) \(recordModel.isFirstPage)")
         // 第一章 第一页
         if recordModel.isFirstChapter && recordModel.isFirstPage {
@@ -263,7 +263,7 @@ extension RKReadController {
         let bookID = recordModel.bookID
         
         // 章节ID
-        let chapterID = recordModel.chapterModel.nextChapterID
+        let chapterID = recordModel.chapterModel!.nextChapterID
         
         print("下一页 章节ID: \(chapterID)  \(recordModel.isLastChapter) \(recordModel.isLastPage)")
         // 最后一章 最后一页

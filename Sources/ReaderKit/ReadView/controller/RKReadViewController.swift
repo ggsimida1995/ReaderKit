@@ -67,7 +67,7 @@ class RKReadViewController: RKViewController {
         // 顶部状态栏
         topView = RKReadViewStatusTopView()
         topView.bookNameLabel.text = readModel.bookName
-        topView.chapterLabel.text = recordModel.chapterModel.name
+        topView.chapterLabel.text = recordModel.chapterModel?.name
         view.addSubview(topView)
         topView.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
@@ -96,7 +96,7 @@ class RKReadViewController: RKViewController {
     /// 初始化阅读视图
     func initReadView() {
         // 是否为书籍首页
-        if recordModel.pageModel.isHomePage {
+        if recordModel.pageModel!.isHomePage {
             topView.isHidden = true
             bottomView.isHidden = true
             
@@ -129,11 +129,11 @@ class RKReadViewController: RKViewController {
         let progress: Float = DZM_READ_TOTAL_PROGRESS(readModel: readModel, recordModel: recordModel)
         
         bottomView.pageLabel.text = "\(recordModel.page + 1)/\(recordModel.chapterModel!.pageCount)"
-        bottomView.chapterLabel.text = recordModel.chapterModel.name
+        bottomView.chapterLabel.text = recordModel.chapterModel?.name
         bottomView.bookNameLabel.text = readModel.bookName
         bottomView.progressLabel.text = DZM_READ_TOTAL_PROGRESS_STRING(progress: progress)
         
-        topView.chapterLabel.text = recordModel.chapterModel.name
+        topView.chapterLabel.text = recordModel.chapterModel?.name
         topView.bookNameLabel.text = readModel.bookName
         topView.progressLabel.text = DZM_READ_TOTAL_PROGRESS_STRING(progress: progress)
         topView.pageLabel.text = "\(recordModel.page + 1)/\(recordModel.chapterModel!.pageCount)"

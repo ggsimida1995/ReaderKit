@@ -34,7 +34,9 @@ class RKReadViewScrollController: RKViewController,UITableViewDelegate,UITableVi
         super.viewDidLoad()
         
         // 阅读记录开始阅读
-        chapterIDs.append(vc.readModel.recordModel.chapterModel.id)
+        if let chapterID = vc.readModel.recordModel.chapterModel?.id as? Int {
+            chapterIDs.append(chapterID)
+        }
         
         // 刷新阅读进度
         reloadProgress()
@@ -82,7 +84,7 @@ class RKReadViewScrollController: RKViewController,UITableViewDelegate,UITableVi
         // 顶部状态栏
         topView = RKReadViewStatusTopView()
         topView.bookNameLabel.text = vc.readModel.bookName
-        topView.chapterLabel.text = vc.readModel.recordModel.chapterModel.name
+        topView.chapterLabel.text = vc.readModel.recordModel.chapterModel?.name
         view.addSubview(topView)
         // topView.frame = CGRect(x: readRect.minX, y: readRect.minY, width: readRect.width, height: _READ_STATUS_TOP_VIEW_HEIGHT)
         topView.translatesAutoresizingMaskIntoConstraints = false
@@ -105,7 +107,7 @@ class RKReadViewScrollController: RKViewController,UITableViewDelegate,UITableVi
         // 底部状态栏
         bottomView = RKReadViewStatusBottomView()
         bottomView.bookNameLabel.text = vc.readModel.bookName
-        bottomView.chapterLabel.text = vc.readModel.recordModel.chapterModel.name
+        bottomView.chapterLabel.text = vc.readModel.recordModel.chapterModel?.name
         view.addSubview(bottomView)
         // bottomView.frame = CGRect(x: readRect.minX, y: readRect.maxY - _READ_STATUS_BOTTOM_VIEW_HEIGHT, width: readRect.width, height: _READ_STATUS_BOTTOM_VIEW_HEIGHT)
         bottomView.translatesAutoresizingMaskIntoConstraints = false
@@ -287,7 +289,7 @@ class RKReadViewScrollController: RKViewController,UITableViewDelegate,UITableVi
             guard let chapterModel = self.GetChapterModel(chapterID: chapterID) else { return }
             
             self.vc.readModel.recordModel.modify(chapterModel: chapterModel, page: indexPath.row)
-            RK_READ_RECORD_CURRENT_CHAPTER_LOCATION = self.vc.readModel.recordModel.locationFirst
+            RK_READ_RECORD_CURRENT_CHAPTER_LOCATION = self.vc.readModel.recordModel.locationFirst!
             
             DispatchQueue.main.async { [weak self] () in
                 guard let self = self else { return }
