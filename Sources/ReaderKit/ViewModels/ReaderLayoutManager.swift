@@ -326,7 +326,7 @@ extension ReaderLayoutManager {
     var titlePositionIndex: Int { settings.titlePositionIndex }
     
     /// 更新间距类型
-    func updateSpacingType(_ type: DZMSpacingType) {
+    func updateSpacingType(_ type: RKSpacingType) {
         var newLineSpacing: CGFloat = 5
         var newParagraphSpacing: CGFloat = 10
         
@@ -349,19 +349,19 @@ extension ReaderLayoutManager {
     }
     
     /// 翻页类型
-    var effectType: DZMEffectType {return DZMEffectType(rawValue: settings.effectIndex) ?? .cover}
+    var effectType: RKEffectType {return RKEffectType(rawValue: settings.effectIndex) ?? .cover}
     
     /// 阅读进度类型
     /// - Note:
     ///   - 支持分页进度和总文章进度（网络文章也适用）
     ///   - 使用总文章进度时，需要提供整本书的章节总数，以及当前章节从0开始的索引
     ///   - 如需在拖动底部进度条时显示章节名，需要提供章节列表数据，并修改 RMProgressView 中 ASValueTrackingSliderDataSource 的返回值为章节名
-    var progressType: DZMProgressType {
-        return DZMProgressType(rawValue: settings.progressIndex) ?? .page  // 提供默认值
+    var progressType: RKProgressType {
+        return RKProgressType(rawValue: settings.progressIndex) ?? .page  // 提供默认值
     }
     
-    var titlePositionType: DZMTitlePositionType {
-        return DZMTitlePositionType(rawValue: settings.titlePositionIndex) ?? .center
+    var titlePositionType: RKTitlePositionType {
+        return RKTitlePositionType(rawValue: settings.titlePositionIndex) ?? .center
     }
     
     
@@ -601,7 +601,7 @@ extension ReaderLayoutManager {
         }
         
         settings = newSettings
-//        ReaderNotification.postPageReloadUpdate()
+        ReaderNotification.postPageReloadUpdate()
     }
     
     
