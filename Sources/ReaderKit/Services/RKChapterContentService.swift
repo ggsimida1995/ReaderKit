@@ -34,8 +34,7 @@ class DefaultChapterContentService: ChapterContentService {
     
      func getChapter(bookID: String, chapterID: Int) -> RKReadChapterModel? {
         // 如果有外部提供者，使用外部提供者获取内容
-        if let provider = DefaultChapterContentService.externalProvider,
-           let content = provider.getChapterContent(bookID: bookID, chapterID: chapterID) {
+        if let content = provider.getChapterContent(bookID: bookID, chapterID: chapterID) {
             // 创建章节模型
             let chapterModel = RKReadChapterModel()
             

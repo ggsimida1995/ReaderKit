@@ -34,60 +34,81 @@ struct PageTurnControllerRepresentable<Controller: PageTurnController>: UIViewCo
 struct RKReadControllerRepresentable: UIViewControllerRepresentable {
     typealias UIViewControllerType = RKReadController
     
-    // 书籍ID
-    var bookID: String
+    // 书籍模型
+    var rkBook: RKBook
     
-    // 阅读模型
-    var readModel: RKReadModel
-    
-    /// 初始化方法
-    /// - Parameters:
-    ///   - bookID: 书籍ID
-    ///   - readModel: 阅读模型
-    init(bookID: String, readModel: RKReadModel) {
-        self.bookID = bookID
-        self.readModel = readModel
-    }
-    
-    /// 初始化方法（根据基本参数创建阅读模型）
-    /// - Parameters:
-    ///   - bookID: 书籍ID
-    ///   - bookName: 书籍名称
-    ///   - chapterCount: 章节数量
-    init(bookID: String, bookName: String, chapterCount: Int) {
-        self.bookID = bookID
-        
-        // 内部创建阅读模型
-        let readModel = RKReadModel()
-        readModel.bookID = bookID
-        readModel.bookName = bookName
-        readModel.chapterCount = chapterCount
-        
-        // 创建阅读记录
-        let recordModel = RKReadRecordModel()
-        recordModel.bookID = bookID
-        readModel.recordModel = recordModel
-        
-        self.readModel = readModel
+    /// 使用RKBook初始化
+    /// - Parameter book: 书籍模型
+    init(book: RKBook) {
+        self.rkBook = book
     }
     
     func makeUIViewController(context: Context) -> RKReadController {
-        let vc = RKReadController()
-        
-        // 设置阅读控制器的模型
-        vc.readModel = readModel
-        
-        // 使用新的方法获取章节内容
-        vc.fetchChapterContent(bookID: bookID, chapterID: 1)
-        
-        return vc
+          let vc = RKReadController()
+       if let book = rkBook {
+           let bookID = String(book.bkId)
+           let readModel = RKReadModel.model(bookID: bookID)
+           readModel.bookName = book.bookName
+           readModel.chapterCount = book.chapterCount
+            // 记录章节列表
+           readModel.chapterListModels = readerManager.chapterListModels
+           // controller.readModel.bookName = book.bookName
+           let chapterID = book.position
+           // 检查是否当前将要阅读的章节是否等于阅读记录
+           if chapterID != readModel.recordModel.chapterModel?.id {
+               print("进来 1 不等于阅读记录")
+               // 如果不一致则需要检查本地是否有没有,没有则下载,并修改阅读记录为该章节。
+               
+               // 检查马上要阅读章节是否本地存在
+               if RKReadChapterModel.isExist(bookID: bookID, chapterID: chapterID) { // 存在
+                   
+                   // 如果存在则修改阅读记录
+                   readModel.recordModel.modify(chapterID: chapterID, location: 0)
+                   
+                   //                    let vc  = DZMReadController()
+                   
+                   vc.readModel = readModel
+                   
+                   
+               }else{ // 如果不存在则需要加载网络数据
+
+                   vc.fetchChapterContent(bookID: bookID, chapterID: chapterID)
+                   // 如果存在则修改阅读记录
+                   readModel.recordModel.modify(chapterID: chapterID, location: 0)
+                   
+                   //                    let vc  = DZMReadController()
+                   
+                   vc.readModel = readModel
+                   
+               }
+           }else{
+                print("进来 2 等于阅读记录")
+               //  readModel.recordModel.modify(chapterID: chapterID, location: 0)
+
+               vc.readModel = readModel
+           }
+       }
+       return vc
+     
+      
     }
     
     func updateUIViewController(_ uiViewController: RKReadController, context: Context) {
         // 当readModel发生变化时更新控制器
         if readModel.bookID != uiViewController.readModel.bookID {
             uiViewController.readModel = readModel
-            uiViewController.fetchChapterContent(bookID: readModel.bookID, chapterID: 1)
+            
+            // 获取章节ID
+            let chapterID = readModel.recordModel.chapterID
+            
+            // 检查章节是否存在
+            if RKReadChapterModel.isExist(bookID: readModel.bookID, chapterID: chapterID) {
+                // 如果存在则修改阅读记录
+                readModel.recordModel.modify(chapterID: chapterID, location: 0)
+            } else {
+                // 如果不存在则需要加载网络数据
+                uiViewController.fetchChapterContent(bookID: readModel.bookID, chapterID: chapterID)
+            }
         }
     }
     
